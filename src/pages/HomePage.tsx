@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Upload } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 
@@ -39,6 +39,27 @@ export default function HomePage() {
   const [responseHeight, setResponseHeight] = useState(40);
   const isDraggingSidebar = useRef(false);
   const isDraggingResponse = useRef(false);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    setIsLoading(true);
+    try {
+      const response = await axV1.get("/groups", {
+        params: { page: 1, perPage: -1 },
+      });
+
+      let data: any[] = response.data.data.records;
+
+      setCollections([...collections, ...data]);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const selectedRequest = selectedRequestId
     ? collections
