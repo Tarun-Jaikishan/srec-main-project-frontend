@@ -133,57 +133,94 @@ export default function HomePage() {
     }
   };
 
-  const handleAddRequest = (collectionId: string) => {
-    const uniqueId = uuidv4();
+  const handleAddRequest = async (collectionId: string) => {
+    setIsLoading(true);
+    try {
+      const uniqueId = uuidv4();
 
-    const newRequest: ApiRequest = {
-      id: uniqueId,
-      name: "New Request",
-      method: "GET",
-      url: "",
-      headers: [],
-      params: [],
-      body: "",
-    };
+      const newRequest: ApiRequest = {
+        id: uniqueId,
+        name: "New Request",
+        method: "GET",
+        url: "",
+        headers: [],
+        params: [],
+        body: "",
+      };
 
-    setCollections(
-      collections.map((collection) =>
-        collection.id === collectionId
-          ? {
-              ...collection,
-              api_requests: [...collection.api_requests, newRequest],
-            }
-          : collection
-      )
-    );
+      await axV1.post("/api-requests", {
+        id: newRequest.id,
+        group_id: collectionId,
+        name: newRequest.name,
+        method: newRequest.method,
+      });
 
-    setSelectedRequestId(newRequest.id);
-  };
+      setCollections(
+        collections.map((collection) =>
+          collection.id === collectionId
+            ? {
+                ...collection,
+                api_requests: [...collection.api_requests, newRequest],
+              }
+            : collection
+        )
+      );
 
-  const handleDeleteRequest = (requestId: string) => {
-    setCollections(
-      collections.map((collection) => ({
-        ...collection,
-        api_requests: collection.api_requests.filter((r) => r.id !== requestId),
-      }))
-    );
-    if (selectedRequestId === requestId) {
-      setSelectedRequestId(null);
+      setSelectedRequestId(newRequest.id);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleRenameRequest = (requestId: string, newName: string) => {
-    setCollections(
-      collections.map((collection) => ({
-        ...collection,
-        api_requests: collection.api_requests.map((request) =>
-          request.id === requestId ? { ...request, name: newName } : request
-        ),
-      }))
-    );
+  const handleDeleteRequest = async (requestId: string) => {
+    setIsLoading(true);
+    try {
+      await axV1.delete(`/api-requests/${requestId}`);
+
+      setCollections(
+        collections.map((collection) => ({
+          ...collection,
+          api_requests: collection.api_requests.filter(
+            (r) => r.id !== requestId
+          ),
+        }))
+      );
+      if (selectedRequestId === requestId) setSelectedRequestId(null);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleRenameRequest = async (requestId: string, newName: string) => {
+    setIsLoading(true);
+    try {
+      await axV1.put("/api-requests", {
+        id: requestId,
+        name: newName,
+      });
+
+      setCollections(
+        collections.map((collection) => ({
+          ...collection,
+          api_requests: collection.api_requests.map((request) =>
+            request.id === requestId ? { ...request, name: newName } : request
+          ),
+        }))
+      );
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleUpdateRequest = (updatedRequest: ApiRequest) => {
+    console.log(updatedRequest);
+
     setCollections(
       collections.map((collection) => ({
         ...collection,
