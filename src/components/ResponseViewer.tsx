@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { ApiResponse } from '../types';
-import CodeMirror from '@uiw/react-codemirror';
-import { json } from '@codemirror/lang-json';
-import { Copy, Check, Clock } from 'lucide-react';
+import React, { useState } from "react";
+import { ApiResponse } from "../types";
+import CodeMirror from "@uiw/react-codemirror";
+import { json } from "@codemirror/lang-json";
+import { Copy, Check, Clock } from "lucide-react";
 
 interface ResponseViewerProps {
   response: ApiResponse | null;
@@ -26,7 +26,7 @@ export function ResponseViewer({ response }: ResponseViewerProps) {
   };
 
   const formatTime = (ms: number) => {
-    if (ms < 1) return '< 1ms';
+    if (ms < 1) return "< 1ms";
     if (ms < 1000) return `${Math.round(ms)}ms`;
     return `${(ms / 1000).toFixed(2)}s`;
   };
@@ -34,30 +34,33 @@ export function ResponseViewer({ response }: ResponseViewerProps) {
   const totalSize = response.size.headers + response.size.body;
 
   const handleCopy = async () => {
-    const textToCopy = typeof response.data === 'string' 
-      ? response.data 
-      : JSON.stringify(response.data, null, 2);
-    
+    const textToCopy =
+      typeof response.data === "string"
+        ? response.data
+        : JSON.stringify(response.data, null, 2);
+
     await navigator.clipboard.writeText(textToCopy);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
   const getStatusColor = (status: number) => {
-    if (status >= 200 && status < 300) return 'bg-green-100 text-green-800';
-    if (status >= 400) return 'bg-red-100 text-red-800';
-    if (status >= 300) return 'bg-yellow-100 text-yellow-800';
-    return 'bg-gray-100 text-gray-800';
+    if (status >= 200 && status < 300) return "bg-green-100 text-green-800";
+    if (status >= 400) return "bg-red-100 text-red-800";
+    if (status >= 300) return "bg-yellow-100 text-yellow-800";
+    return "bg-gray-100 text-gray-800";
   };
 
   const renderContent = () => {
     if (!response.data) return null;
 
-    if (typeof response.data === 'string') {
-      if (response.contentType.includes('text/html')) {
+    if (typeof response.data === "string") {
+      if (response.contentType.includes("text/html")) {
         return (
           <div className="font-mono text-sm p-4 bg-gray-50 rounded">
-            <pre className="whitespace-pre-wrap break-words">{response.data}</pre>
+            <pre className="whitespace-pre-wrap break-words">
+              {response.data}
+            </pre>
           </div>
         );
       }
@@ -96,7 +99,8 @@ export function ResponseViewer({ response }: ResponseViewerProps) {
               {formatTime(response.time)}
             </div>
             <div>
-              Size: {formatSize(totalSize)} ({formatSize(response.size.headers)} headers + {formatSize(response.size.body)} body)
+              Size: {formatSize(totalSize)} ({formatSize(response.size.headers)}{" "}
+              headers + {formatSize(response.size.body)} body)
             </div>
           </div>
         </div>
@@ -127,9 +131,7 @@ export function ResponseViewer({ response }: ResponseViewerProps) {
                 {response.contentType}
               </span>
             </div>
-            <div className="flex-1 overflow-auto">
-              {renderContent()}
-            </div>
+            <div className="flex-1 overflow-auto">{renderContent()}</div>
           </div>
 
           <div className="border rounded-lg overflow-hidden flex flex-col">

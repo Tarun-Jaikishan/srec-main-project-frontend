@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { FolderOpen, Plus, Trash2, Download, MoreVertical } from 'lucide-react';
-import { Collection } from '../types';
+import React, { useState } from "react";
+import { FolderOpen, Plus, Trash2, Download, MoreVertical } from "lucide-react";
+import { Collection } from "../types";
 
 interface SidebarProps {
   collections: Collection[];
@@ -13,7 +13,11 @@ interface SidebarProps {
   onDeleteRequest: (requestId: string) => void;
   onRenameRequest: (requestId: string, newName: string) => void;
   onExportCollection: (collectionId: string) => void;
-  onMoveRequest: (requestId: string, fromCollectionId: string, toCollectionId: string) => void;
+  onMoveRequest: (
+    requestId: string,
+    fromCollectionId: string,
+    toCollectionId: string
+  ) => void;
 }
 
 interface EditableTextProps {
@@ -29,7 +33,12 @@ interface CollectionMenuProps {
   onDelete: () => void;
 }
 
-function CollectionMenu({ collectionId, onAddRequest, onExport, onDelete }: CollectionMenuProps) {
+function CollectionMenu({
+  collectionId,
+  onAddRequest,
+  onExport,
+  onDelete,
+}: CollectionMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = React.useRef<HTMLDivElement>(null);
 
@@ -40,8 +49,8 @@ function CollectionMenu({ collectionId, onAddRequest, onExport, onDelete }: Coll
       }
     }
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   return (
@@ -52,25 +61,34 @@ function CollectionMenu({ collectionId, onAddRequest, onExport, onDelete }: Coll
       >
         <MoreVertical size={16} />
       </button>
-      
+
       {isOpen && (
         <div className="absolute right-0 mt-1 w-48 bg-white rounded-md shadow-lg z-10 py-1 border">
           <button
-            onClick={() => { onAddRequest(); setIsOpen(false); }}
+            onClick={() => {
+              onAddRequest();
+              setIsOpen(false);
+            }}
             className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 flex items-center gap-2"
           >
             <Plus size={16} />
             Add Request
           </button>
           <button
-            onClick={() => { onExport(); setIsOpen(false); }}
+            onClick={() => {
+              onExport();
+              setIsOpen(false);
+            }}
             className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 flex items-center gap-2"
           >
             <Download size={16} />
             Export Collection
           </button>
           <button
-            onClick={() => { onDelete(); setIsOpen(false); }}
+            onClick={() => {
+              onDelete();
+              setIsOpen(false);
+            }}
             className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
           >
             <Trash2 size={16} />
@@ -82,7 +100,7 @@ function CollectionMenu({ collectionId, onAddRequest, onExport, onDelete }: Coll
   );
 }
 
-function EditableText({ value, onSave, className = '' }: EditableTextProps) {
+function EditableText({ value, onSave, className = "" }: EditableTextProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(value);
 
@@ -92,12 +110,12 @@ function EditableText({ value, onSave, className = '' }: EditableTextProps) {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       if (editValue.trim()) {
         onSave(editValue);
       }
       setIsEditing(false);
-    } else if (e.key === 'Escape') {
+    } else if (e.key === "Escape") {
       setIsEditing(false);
       setEditValue(value);
     }
@@ -125,7 +143,10 @@ function EditableText({ value, onSave, className = '' }: EditableTextProps) {
   }
 
   return (
-    <span onDoubleClick={handleDoubleClick} className={`${className} cursor-text`}>
+    <span
+      onDoubleClick={handleDoubleClick}
+      className={`${className} cursor-text`}
+    >
       {value}
     </span>
   );
@@ -159,7 +180,11 @@ export function Sidebar({
 
   const handleDrop = (collectionId: string) => {
     if (draggedRequest && draggedRequest.collectionId !== collectionId) {
-      onMoveRequest(draggedRequest.id, draggedRequest.collectionId, collectionId);
+      onMoveRequest(
+        draggedRequest.id,
+        draggedRequest.collectionId,
+        collectionId
+      );
     }
     setDraggedRequest(null);
   };
@@ -176,14 +201,18 @@ export function Sidebar({
           <Plus size={20} />
         </button>
       </div>
-      
+
       <div className="space-y-4">
         {collections.map((collection) => (
-          <div 
+          <div
             key={collection.id}
             onDragOver={handleDragOver}
             onDrop={() => handleDrop(collection.id)}
-            className={`p-2 rounded ${draggedRequest && draggedRequest.collectionId !== collection.id ? 'bg-blue-50' : ''}`}
+            className={`p-2 rounded ${
+              draggedRequest && draggedRequest.collectionId !== collection.id
+                ? "bg-blue-50"
+                : ""
+            }`}
           >
             <div className="flex items-center gap-2 mb-2">
               <FolderOpen size={16} />
@@ -199,7 +228,7 @@ export function Sidebar({
                 onDelete={() => onDeleteCollection(collection.id)}
               />
             </div>
-            
+
             <div className="pl-6 space-y-1">
               {collection.requests.map((request) => (
                 <div
@@ -212,13 +241,13 @@ export function Sidebar({
                     onClick={() => onSelectRequest(request.id)}
                     className={`flex-1 text-left px-2 py-1 rounded text-sm ${
                       selectedRequestId === request.id
-                        ? 'bg-blue-100 text-blue-700'
-                        : 'hover:bg-gray-100'
+                        ? "bg-blue-100 text-blue-700"
+                        : "hover:bg-gray-100"
                     }`}
                   >
                     <span className="text-xs font-medium text-gray-500">
                       {request.method}
-                    </span>{' '}
+                    </span>{" "}
                     <EditableText
                       value={request.name}
                       onSave={(newName) => onRenameRequest(request.id, newName)}

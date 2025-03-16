@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import CodeMirror from '@uiw/react-codemirror';
-import { json } from '@codemirror/lang-json';
-import { Send, Plus, X } from 'lucide-react';
-import { ApiRequest, HttpMethod, RequestHeader, QueryParam } from '../types';
+import React, { useState } from "react";
+import CodeMirror from "@uiw/react-codemirror";
+import { json } from "@codemirror/lang-json";
+import { Send, Plus, X } from "lucide-react";
+import { ApiRequest, HttpMethod, RequestHeader, QueryParam } from "../types";
 
 interface RequestBuilderProps {
   request: ApiRequest;
@@ -11,7 +11,7 @@ interface RequestBuilderProps {
   isLoading: boolean;
 }
 
-const HTTP_METHODS: HttpMethod[] = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'];
+const HTTP_METHODS: HttpMethod[] = ["GET", "POST", "PUT", "DELETE", "PATCH"];
 
 export function RequestBuilder({
   request,
@@ -19,7 +19,9 @@ export function RequestBuilder({
   onSendRequest,
   isLoading,
 }: RequestBuilderProps) {
-  const [activeTab, setActiveTab] = useState<'params' | 'headers' | 'body'>('params');
+  const [activeTab, setActiveTab] = useState<"params" | "headers" | "body">(
+    "params"
+  );
 
   const handleMethodChange = (method: HttpMethod) => {
     onUpdateRequest({ ...request, method });
@@ -34,12 +36,16 @@ export function RequestBuilder({
       ...request,
       queryParams: [
         ...request.queryParams,
-        { key: '', value: '', enabled: true },
+        { key: "", value: "", enabled: true },
       ],
     });
   };
 
-  const handleParamChange = (index: number, field: keyof QueryParam, value: string | boolean) => {
+  const handleParamChange = (
+    index: number,
+    field: keyof QueryParam,
+    value: string | boolean
+  ) => {
     const newParams = [...request.queryParams];
     newParams[index] = { ...newParams[index], [field]: value };
     onUpdateRequest({ ...request, queryParams: newParams });
@@ -53,14 +59,15 @@ export function RequestBuilder({
   const handleAddHeader = () => {
     onUpdateRequest({
       ...request,
-      headers: [
-        ...request.headers,
-        { key: '', value: '', enabled: true },
-      ],
+      headers: [...request.headers, { key: "", value: "", enabled: true }],
     });
   };
 
-  const handleHeaderChange = (index: number, field: keyof RequestHeader, value: string | boolean) => {
+  const handleHeaderChange = (
+    index: number,
+    field: keyof RequestHeader,
+    value: string | boolean
+  ) => {
     const newHeaders = [...request.headers];
     newHeaders[index] = { ...newHeaders[index], [field]: value };
     onUpdateRequest({ ...request, headers: newHeaders });
@@ -89,7 +96,7 @@ export function RequestBuilder({
             </option>
           ))}
         </select>
-        
+
         <input
           type="text"
           value={request.url}
@@ -97,7 +104,7 @@ export function RequestBuilder({
           placeholder="Enter request URL"
           className="flex-1 px-3 py-2 border rounded"
         />
-        
+
         <button
           onClick={onSendRequest}
           disabled={isLoading}
@@ -111,32 +118,32 @@ export function RequestBuilder({
         <div className="flex border-b">
           <button
             className={`px-4 py-2 ${
-              activeTab === 'params' ? 'border-b-2 border-blue-600' : ''
+              activeTab === "params" ? "border-b-2 border-blue-600" : ""
             }`}
-            onClick={() => setActiveTab('params')}
+            onClick={() => setActiveTab("params")}
           >
             Params
           </button>
           <button
             className={`px-4 py-2 ${
-              activeTab === 'headers' ? 'border-b-2 border-blue-600' : ''
+              activeTab === "headers" ? "border-b-2 border-blue-600" : ""
             }`}
-            onClick={() => setActiveTab('headers')}
+            onClick={() => setActiveTab("headers")}
           >
             Headers
           </button>
           <button
             className={`px-4 py-2 ${
-              activeTab === 'body' ? 'border-b-2 border-blue-600' : ''
+              activeTab === "body" ? "border-b-2 border-blue-600" : ""
             }`}
-            onClick={() => setActiveTab('body')}
+            onClick={() => setActiveTab("body")}
           >
             Body
           </button>
         </div>
 
         <div className="p-4">
-          {activeTab === 'params' && (
+          {activeTab === "params" && (
             <div className="space-y-2">
               {request.queryParams.map((param, index) => (
                 <div key={index} className="flex gap-2 items-center">
@@ -144,14 +151,14 @@ export function RequestBuilder({
                     type="checkbox"
                     checked={param.enabled}
                     onChange={(e) =>
-                      handleParamChange(index, 'enabled', e.target.checked)
+                      handleParamChange(index, "enabled", e.target.checked)
                     }
                   />
                   <input
                     type="text"
                     value={param.key}
                     onChange={(e) =>
-                      handleParamChange(index, 'key', e.target.value)
+                      handleParamChange(index, "key", e.target.value)
                     }
                     placeholder="Parameter"
                     className="flex-1 px-3 py-1 border rounded"
@@ -160,7 +167,7 @@ export function RequestBuilder({
                     type="text"
                     value={param.value}
                     onChange={(e) =>
-                      handleParamChange(index, 'value', e.target.value)
+                      handleParamChange(index, "value", e.target.value)
                     }
                     placeholder="Value"
                     className="flex-1 px-3 py-1 border rounded"
@@ -181,7 +188,7 @@ export function RequestBuilder({
               </button>
             </div>
           )}
-          {activeTab === 'headers' && (
+          {activeTab === "headers" && (
             <div className="space-y-2">
               {request.headers.map((header, index) => (
                 <div key={index} className="flex gap-2 items-center">
@@ -189,14 +196,14 @@ export function RequestBuilder({
                     type="checkbox"
                     checked={header.enabled}
                     onChange={(e) =>
-                      handleHeaderChange(index, 'enabled', e.target.checked)
+                      handleHeaderChange(index, "enabled", e.target.checked)
                     }
                   />
                   <input
                     type="text"
                     value={header.key}
                     onChange={(e) =>
-                      handleHeaderChange(index, 'key', e.target.value)
+                      handleHeaderChange(index, "key", e.target.value)
                     }
                     placeholder="Header"
                     className="flex-1 px-3 py-1 border rounded"
@@ -205,7 +212,7 @@ export function RequestBuilder({
                     type="text"
                     value={header.value}
                     onChange={(e) =>
-                      handleHeaderChange(index, 'value', e.target.value)
+                      handleHeaderChange(index, "value", e.target.value)
                     }
                     placeholder="Value"
                     className="flex-1 px-3 py-1 border rounded"
@@ -226,7 +233,7 @@ export function RequestBuilder({
               </button>
             </div>
           )}
-          {activeTab === 'body' && (
+          {activeTab === "body" && (
             <CodeMirror
               value={request.body}
               height="200px"
