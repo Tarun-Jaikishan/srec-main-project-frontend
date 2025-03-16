@@ -1,18 +1,18 @@
 export type HttpMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
 
-export interface RequestHeader {
+export type RequestHeader = {
   key: string;
   value: string;
   enabled: boolean;
-}
+};
 
-export interface QueryParam {
+export type QueryParam = {
   key: string;
   value: string;
   enabled: boolean;
-}
+};
 
-export interface ApiRequest {
+export type ApiRequest = {
   id: string;
   name: string;
   method: HttpMethod;
@@ -20,15 +20,15 @@ export interface ApiRequest {
   headers: RequestHeader[];
   queryParams: QueryParam[];
   body: string;
-}
+};
 
-export interface Collection {
+export type Collection = {
   id: string;
   name: string;
   requests: ApiRequest[];
-}
+};
 
-export interface ApiResponse {
+export type ApiResponse = {
   status: number;
   statusText: string;
   headers: Record<string, string>;
@@ -39,4 +39,4 @@ export interface ApiResponse {
     body: number;
   };
   time: number; // Response time in milliseconds
-}
+};

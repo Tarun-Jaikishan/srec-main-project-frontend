@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FolderOpen, Plus, Trash2, Download, MoreVertical } from "lucide-react";
 import { Collection } from "../types";
 
-interface SidebarProps {
+type SidebarProps = {
   collections: Collection[];
   selectedRequestId: string | null;
   onSelectRequest: (requestId: string) => void;
@@ -18,31 +18,30 @@ interface SidebarProps {
     fromCollectionId: string,
     toCollectionId: string
   ) => void;
-}
+};
 
-interface EditableTextProps {
+type EditableTextProps = {
   value: string;
   onSave: (newValue: string) => void;
   className?: string;
-}
+};
 
-interface CollectionMenuProps {
+type CollectionMenuProps = {
   collectionId: string;
   onAddRequest: () => void;
   onExport: () => void;
   onDelete: () => void;
-}
+};
 
 function CollectionMenu({
-  collectionId,
   onAddRequest,
   onExport,
   onDelete,
 }: CollectionMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const menuRef = React.useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setIsOpen(false);

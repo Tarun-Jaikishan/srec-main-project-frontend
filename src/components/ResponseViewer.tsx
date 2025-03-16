@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { ApiResponse } from "../types";
 import CodeMirror from "@uiw/react-codemirror";
 import { json } from "@codemirror/lang-json";

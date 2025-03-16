@@ -1,15 +1,15 @@
-import React, { useState } from "react";
+import { ChangeEvent, useState } from "react";
 import CodeMirror from "@uiw/react-codemirror";
 import { json } from "@codemirror/lang-json";
 import { Send, Plus, X } from "lucide-react";
 import { ApiRequest, HttpMethod, RequestHeader, QueryParam } from "../types";
 
-interface RequestBuilderProps {
+type RequestBuilderProps = {
   request: ApiRequest;
   onUpdateRequest: (request: ApiRequest) => void;
   onSendRequest: () => void;
   isLoading: boolean;
-}
+};
 
 const HTTP_METHODS: HttpMethod[] = ["GET", "POST", "PUT", "DELETE", "PATCH"];
 
@@ -27,7 +27,7 @@ export function RequestBuilder({
     onUpdateRequest({ ...request, method });
   };
 
-  const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleUrlChange = (e: ChangeEvent<HTMLInputElement>) => {
     onUpdateRequest({ ...request, url: e.target.value });
   };
 
@@ -233,6 +233,7 @@ export function RequestBuilder({
               </button>
             </div>
           )}
+
           {activeTab === "body" && (
             <CodeMirror
               value={request.body}
