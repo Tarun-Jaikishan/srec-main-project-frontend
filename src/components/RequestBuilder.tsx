@@ -2,7 +2,7 @@ import { ChangeEvent, useState } from "react";
 import CodeMirror from "@uiw/react-codemirror";
 import { json } from "@codemirror/lang-json";
 import { Send, Plus, X } from "lucide-react";
-import { ApiRequest, HttpMethod, RequestHeader, QueryParam } from "../types";
+import { ApiRequest, HttpMethod, RequestHeader, Param } from "../types";
 
 type RequestBuilderProps = {
   request: ApiRequest;
@@ -40,7 +40,7 @@ export default function RequestBuilder({
 
   const handleParamChange = (
     index: number,
-    field: keyof QueryParam,
+    field: keyof Param,
     value: string | boolean
   ) => {
     const newParams = [...request.params];

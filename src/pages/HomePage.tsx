@@ -53,7 +53,7 @@ export default function HomePage() {
 
       let data: any[] = response.data.data.records;
 
-      setCollections([...collections, ...data]);
+      setCollections(data);
     } catch (err) {
       console.error(err);
     } finally {
