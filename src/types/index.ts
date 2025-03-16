@@ -19,7 +19,7 @@ export type ApiRequest = {
   url: string;
   headers: RequestHeader[];
   params: Param[];
-  body: string;
+  body: any;
 };
 
 export type Collection = {

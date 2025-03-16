@@ -9,6 +9,7 @@ import ResponseViewer from "../components/ResponseViewer";
 import { ApiRequest, ApiResponse, Collection } from "../types";
 
 import { axV1 } from "../helpers/axios";
+import { toast } from "react-toastify";
 
 export default function HomePage() {
   const [collections, setCollections] = useState<Collection[]>([]);
@@ -220,12 +221,23 @@ export default function HomePage() {
     setIsLoading(true);
 
     try {
+      let parsedBody = null;
+      if (selectedRequest.body) {
+        try {
+          parsedBody = JSON.parse(selectedRequest.body);
+        } catch (e) {
+          toast.error("Invalid JSON body");
+          console.error("Invalid JSON body");
+          return;
+        }
+      }
+
       await axV1.put("/api-requests", {
         id: selectedRequest.id,
         name: selectedRequest.name,
         method: selectedRequest.method,
         url: selectedRequest.url,
-        body: selectedRequest.body,
+        body: parsedBody,
         params: selectedRequest.params,
         headers: selectedRequest.headers,
       });

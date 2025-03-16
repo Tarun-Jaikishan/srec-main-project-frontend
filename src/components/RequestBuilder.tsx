@@ -245,7 +245,13 @@ export default function RequestBuilder({
 
           {activeTab === "body" && (
             <CodeMirror
-              value={request.body}
+              value={
+                typeof request.body === "string"
+                  ? request.body
+                  : request.body === null
+                  ? ""
+                  : JSON.stringify(request.body, null, 2)
+              }
               height="200px"
               extensions={[json()]}
               onChange={handleBodyChange}
