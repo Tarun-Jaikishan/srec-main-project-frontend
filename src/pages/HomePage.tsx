@@ -482,7 +482,7 @@ export default function HomePage() {
           <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center">
             <div className="bg-white p-4 rounded-lg shadow-lg flex items-center gap-3">
               <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-              <span>Sending request...</span>
+              <span>Loading...</span>
             </div>
           </div>
         )}
