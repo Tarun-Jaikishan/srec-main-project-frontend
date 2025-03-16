@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Upload } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
+import axios from "axios";
 
 import Sidebar from "../components/home/Sidebar";
 import RequestBuilder from "../components/home/RequestBuilder";
@@ -307,57 +308,44 @@ export default function HomePage() {
     setIsLoading(true);
 
     try {
-      const headers: Record<string, string> = {};
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+
       selectedRequest.headers
         .filter((h) => h.enabled && h.key.trim())
         .forEach((h) => {
           headers[h.key.trim()] = h.value;
         });
 
-      const url = new URL(selectedRequest.url);
+      const params: Record<string, string> = {};
       selectedRequest.params
         .filter((p) => p.enabled && p.key.trim())
         .forEach((p) => {
-          url.searchParams.append(p.key.trim(), p.value);
+          params[p.key.trim()] = p.value;
         });
 
       const startTime = performance.now();
-      const response = await fetch(url.toString(), {
+      const response = await axios({
         method: selectedRequest.method,
-        headers: {
-          ...headers,
-          "Content-Type": "application/json",
-        },
-        body:
+        url: selectedRequest.url,
+        headers,
+        params,
+        data:
           selectedRequest.method !== "GET" && selectedRequest.body
             ? selectedRequest.body
             : undefined,
       });
 
-      const contentType = response.headers.get("content-type") || "";
-      let responseData;
-      let responseText = await response.text();
-
-      try {
-        if (contentType.includes("application/json")) {
-          responseData = JSON.parse(responseText);
-        } else {
-          responseData = responseText;
-        }
-      } catch {
-        responseData = responseText;
-      }
-
       const endTime = performance.now();
       const responseTime = endTime - startTime;
 
-      const responseHeaders: Record<string, string> = {};
-      response.headers.forEach((value, key) => {
-        responseHeaders[key] = value;
-      });
+      const responseHeaders: any = response.headers || {};
+      const responseData = response.data;
+      const contentType = response.headers["content-type"] || "";
 
       const headerSize = JSON.stringify(responseHeaders).length;
-      const bodySize = responseText.length;
+      const bodySize = JSON.stringify(responseData).length;
 
       setResponse({
         status: response.status,
@@ -373,7 +361,7 @@ export default function HomePage() {
       });
     } catch (error) {
       console.error("Request failed:", error);
-      setResponse({
+      let errorResponse = {
         status: 0,
         statusText: "Request Failed",
         headers: {},
@@ -381,7 +369,25 @@ export default function HomePage() {
         contentType: "application/json",
         size: { headers: 0, body: 0 },
         time: 0,
-      });
+      };
+
+      if (axios.isAxiosError(error) && error.response) {
+        errorResponse = {
+          status: error.response.status,
+          statusText: error.response.statusText,
+          headers: error.response.headers,
+          data: error.response.data,
+          contentType:
+            error.response.headers["content-type"] || "application/json",
+          size: {
+            headers: JSON.stringify(error.response.headers).length,
+            body: JSON.stringify(error.response.data).length,
+          },
+          time: 0,
+        };
+      }
+
+      setResponse(errorResponse);
     } finally {
       setIsLoading(false);
     }
