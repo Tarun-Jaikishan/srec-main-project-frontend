@@ -8,7 +8,7 @@ interface ResponseViewerProps {
   response: ApiResponse | null;
 }
 
-export function ResponseViewer({ response }: ResponseViewerProps) {
+export default function ResponseViewer({ response }: ResponseViewerProps) {
   const [copied, setCopied] = useState(false);
 
   if (!response) {

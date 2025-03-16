@@ -13,11 +13,6 @@ type SidebarProps = {
   onDeleteRequest: (requestId: string) => void;
   onRenameRequest: (requestId: string, newName: string) => void;
   onExportCollection: (collectionId: string) => void;
-  onMoveRequest: (
-    requestId: string,
-    fromCollectionId: string,
-    toCollectionId: string
-  ) => void;
 };
 
 type EditableTextProps = {
@@ -151,7 +146,7 @@ function EditableText({ value, onSave, className = "" }: EditableTextProps) {
   );
 }
 
-export function Sidebar({
+export default function Sidebar({
   collections,
   selectedRequestId,
   onSelectRequest,
@@ -162,32 +157,7 @@ export function Sidebar({
   onDeleteRequest,
   onRenameRequest,
   onExportCollection,
-  onMoveRequest,
 }: SidebarProps) {
-  const [draggedRequest, setDraggedRequest] = useState<{
-    id: string;
-    collectionId: string;
-  } | null>(null);
-
-  const handleDragStart = (requestId: string, collectionId: string) => {
-    setDraggedRequest({ id: requestId, collectionId });
-  };
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-  };
-
-  const handleDrop = (collectionId: string) => {
-    if (draggedRequest && draggedRequest.collectionId !== collectionId) {
-      onMoveRequest(
-        draggedRequest.id,
-        draggedRequest.collectionId,
-        collectionId
-      );
-    }
-    setDraggedRequest(null);
-  };
-
   return (
     <div className="bg-gray-50 border-r border-gray-200 h-full overflow-y-auto p-4">
       <div className="flex items-center justify-between mb-4">
@@ -203,16 +173,7 @@ export function Sidebar({
 
       <div className="space-y-4">
         {collections.map((collection) => (
-          <div
-            key={collection.id}
-            onDragOver={handleDragOver}
-            onDrop={() => handleDrop(collection.id)}
-            className={`p-2 rounded ${
-              draggedRequest && draggedRequest.collectionId !== collection.id
-                ? "bg-blue-50"
-                : ""
-            }`}
-          >
+          <div key={collection.id} className="p-2 rounded">
             <div className="flex items-center gap-2 mb-2">
               <FolderOpen size={16} />
               <EditableText
@@ -230,12 +191,7 @@ export function Sidebar({
 
             <div className="pl-6 space-y-1">
               {collection.requests.map((request) => (
-                <div
-                  key={request.id}
-                  className="flex items-center group"
-                  draggable
-                  onDragStart={() => handleDragStart(request.id, collection.id)}
-                >
+                <div key={request.id} className="flex items-center group">
                   <button
                     onClick={() => onSelectRequest(request.id)}
                     className={`flex-1 text-left px-2 py-1 rounded text-sm ${

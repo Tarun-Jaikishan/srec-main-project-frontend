@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
-import { Sidebar } from "../components/Sidebar";
-import { RequestBuilder } from "../components/RequestBuilder";
-import { ResponseViewer } from "../components/ResponseViewer";
+import Sidebar from "../components/Sidebar";
+import RequestBuilder from "../components/RequestBuilder";
+import ResponseViewer from "../components/ResponseViewer";
 import { ApiRequest, ApiResponse, Collection } from "../types";
 import { Upload } from "lucide-react";
 
@@ -116,35 +116,6 @@ export default function HomePage() {
           request.id === requestId ? { ...request, name: newName } : request
         ),
       }))
-    );
-  };
-
-  const handleMoveRequest = (
-    requestId: string,
-    fromCollectionId: string,
-    toCollectionId: string
-  ) => {
-    const fromCollection = collections.find((c) => c.id === fromCollectionId);
-    const request = fromCollection?.requests.find((r) => r.id === requestId);
-
-    if (!fromCollection || !request) return;
-
-    setCollections(
-      collections.map((collection) => {
-        if (collection.id === fromCollectionId) {
-          return {
-            ...collection,
-            requests: collection.requests.filter((r) => r.id !== requestId),
-          };
-        }
-        if (collection.id === toCollectionId) {
-          return {
-            ...collection,
-            requests: [...collection.requests, request],
-          };
-        }
-        return collection;
-      })
     );
   };
 
@@ -371,7 +342,6 @@ export default function HomePage() {
             onDeleteRequest={handleDeleteRequest}
             onRenameRequest={handleRenameRequest}
             onExportCollection={handleExportCollection}
-            onMoveRequest={handleMoveRequest}
           />
         </div>
 
@@ -400,6 +370,7 @@ export default function HomePage() {
             </div>
           )}
         </div>
+
         {isLoading && (
           <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center">
             <div className="bg-white p-4 rounded-lg shadow-lg flex items-center gap-3">

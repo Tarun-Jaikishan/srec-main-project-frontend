@@ -13,7 +13,7 @@ type RequestBuilderProps = {
 
 const HTTP_METHODS: HttpMethod[] = ["GET", "POST", "PUT", "DELETE", "PATCH"];
 
-export function RequestBuilder({
+export default function RequestBuilder({
   request,
   onUpdateRequest,
   onSendRequest,
