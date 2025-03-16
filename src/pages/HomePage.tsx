@@ -123,6 +123,18 @@ export default function HomePage() {
     }
   };
 
+  const handleGenerateTestCase = async (collectionId: string) => {
+    setIsLoading(true);
+    try {
+      console.log("hi");
+      console.log(collectionId);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleAddRequest = async (collectionId: string) => {
     setIsLoading(true);
     try {
@@ -490,6 +502,7 @@ export default function HomePage() {
             onAddCollection={handleAddCollection}
             onDeleteCollection={handleDeleteCollection}
             onRenameCollection={handleRenameCollection}
+            onGenerateTestCase={handleGenerateTestCase}
             onAddRequest={handleAddRequest}
             onDeleteRequest={handleDeleteRequest}
             onRenameRequest={handleRenameRequest}

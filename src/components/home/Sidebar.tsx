@@ -1,5 +1,12 @@
 import { useEffect, useRef, useState } from "react";
-import { FolderOpen, Plus, Trash2, Download, MoreVertical } from "lucide-react";
+import {
+  FolderOpen,
+  Plus,
+  Trash2,
+  Download,
+  MoreVertical,
+  Zap,
+} from "lucide-react";
 
 import { Collection } from "../../types";
 
@@ -10,6 +17,7 @@ type SidebarProps = {
   onAddCollection: () => void;
   onDeleteCollection: (collectionId: string) => void;
   onRenameCollection: (collectionId: string, newName: string) => void;
+  onGenerateTestCase: (collectionId: string) => void;
   onAddRequest: (collectionId: string) => void;
   onDeleteRequest: (requestId: string) => void;
   onRenameRequest: (requestId: string, newName: string) => void;
@@ -25,12 +33,14 @@ type EditableTextProps = {
 type CollectionMenuProps = {
   collectionId: string;
   onAddRequest: () => void;
+  onGenerateTestCase: () => void;
   onExport: () => void;
   onDelete: () => void;
 };
 
 function CollectionMenu({
   onAddRequest,
+  onGenerateTestCase,
   onExport,
   onDelete,
 }: CollectionMenuProps) {
@@ -68,6 +78,16 @@ function CollectionMenu({
           >
             <Plus size={16} />
             Add Request
+          </button>
+          <button
+            onClick={() => {
+              onGenerateTestCase();
+              setIsOpen(false);
+            }}
+            className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 flex items-center gap-2"
+          >
+            <Zap size={16} />
+            Generate Test Cases
           </button>
           <button
             onClick={() => {
@@ -154,6 +174,7 @@ export default function Sidebar({
   onAddCollection,
   onDeleteCollection,
   onRenameCollection,
+  onGenerateTestCase,
   onAddRequest,
   onDeleteRequest,
   onRenameRequest,
@@ -187,6 +208,7 @@ export default function Sidebar({
                 onAddRequest={() => onAddRequest(collection.id)}
                 onExport={() => onExportCollection(collection.id)}
                 onDelete={() => onDeleteCollection(collection.id)}
+                onGenerateTestCase={() => onGenerateTestCase(collection.id)}
               />
             </div>
 
