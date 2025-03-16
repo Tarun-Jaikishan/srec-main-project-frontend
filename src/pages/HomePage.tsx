@@ -11,23 +11,7 @@ import { ApiRequest, ApiResponse, Collection } from "../types";
 import { axV1 } from "../helpers/axios";
 
 export default function HomePage() {
-  const [collections, setCollections] = useState<Collection[]>([
-    // {
-    //   id: "1",
-    //   name: "My Collection",
-    //   api_requests: [
-    //     {
-    //       id: "1",
-    //       name: "Example Request",
-    //       method: "GET",
-    //       url: "https://jsonplaceholder.typicode.com/posts/1",
-    //       headers: [],
-    //       params: [],
-    //       body: "",
-    //     },
-    //   ],
-    // },
-  ]);
+  const [collections, setCollections] = useState<Collection[]>([]);
 
   const [selectedRequestId, setSelectedRequestId] = useState<string | null>(
     null
