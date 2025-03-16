@@ -1,30 +1,32 @@
-import React, { useState, useRef } from 'react';
-import { Sidebar } from './components/Sidebar';
-import { RequestBuilder } from './components/RequestBuilder';
-import { ResponseViewer } from './components/ResponseViewer';
-import { ApiRequest, ApiResponse, Collection } from './types';
-import { Download, Upload } from 'lucide-react';
+import React, { useState, useRef } from "react";
+import { Sidebar } from "./components/Sidebar";
+import { RequestBuilder } from "./components/RequestBuilder";
+import { ResponseViewer } from "./components/ResponseViewer";
+import { ApiRequest, ApiResponse, Collection } from "./types";
+import { Upload } from "lucide-react";
 
 function App() {
   const [collections, setCollections] = useState<Collection[]>([
     {
-      id: '1',
-      name: 'My Collection',
+      id: "1",
+      name: "My Collection",
       requests: [
         {
-          id: '1',
-          name: 'Example Request',
-          method: 'GET',
-          url: 'https://jsonplaceholder.typicode.com/posts/1',
+          id: "1",
+          name: "Example Request",
+          method: "GET",
+          url: "https://jsonplaceholder.typicode.com/posts/1",
           headers: [],
           queryParams: [],
-          body: '',
+          body: "",
         },
       ],
     },
   ]);
 
-  const [selectedRequestId, setSelectedRequestId] = useState<string | null>('1');
+  const [selectedRequestId, setSelectedRequestId] = useState<string | null>(
+    "1"
+  );
   const [response, setResponse] = useState<ApiResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -42,7 +44,7 @@ function App() {
   const handleAddCollection = () => {
     const newCollection: Collection = {
       id: Date.now().toString(),
-      name: 'New Collection',
+      name: "New Collection",
       requests: [],
     };
     setCollections([...collections, newCollection]);
@@ -50,7 +52,12 @@ function App() {
 
   const handleDeleteCollection = (collectionId: string) => {
     setCollections(collections.filter((c) => c.id !== collectionId));
-    if (selectedRequest?.id && collections.find(c => c.id === collectionId)?.requests.some(r => r.id === selectedRequest.id)) {
+    if (
+      selectedRequest?.id &&
+      collections
+        .find((c) => c.id === collectionId)
+        ?.requests.some((r) => r.id === selectedRequest.id)
+    ) {
       setSelectedRequestId(null);
     }
   };
@@ -68,12 +75,12 @@ function App() {
   const handleAddRequest = (collectionId: string) => {
     const newRequest: ApiRequest = {
       id: Date.now().toString(),
-      name: 'New Request',
-      method: 'GET',
-      url: '',
+      name: "New Request",
+      method: "GET",
+      url: "",
       headers: [],
       queryParams: [],
-      body: '',
+      body: "",
     };
 
     setCollections(
@@ -106,35 +113,39 @@ function App() {
       collections.map((collection) => ({
         ...collection,
         requests: collection.requests.map((request) =>
-          request.id === requestId
-            ? { ...request, name: newName }
-            : request
+          request.id === requestId ? { ...request, name: newName } : request
         ),
       }))
     );
   };
 
-  const handleMoveRequest = (requestId: string, fromCollectionId: string, toCollectionId: string) => {
-    const fromCollection = collections.find(c => c.id === fromCollectionId);
-    const request = fromCollection?.requests.find(r => r.id === requestId);
-    
+  const handleMoveRequest = (
+    requestId: string,
+    fromCollectionId: string,
+    toCollectionId: string
+  ) => {
+    const fromCollection = collections.find((c) => c.id === fromCollectionId);
+    const request = fromCollection?.requests.find((r) => r.id === requestId);
+
     if (!fromCollection || !request) return;
 
-    setCollections(collections.map(collection => {
-      if (collection.id === fromCollectionId) {
-        return {
-          ...collection,
-          requests: collection.requests.filter(r => r.id !== requestId)
-        };
-      }
-      if (collection.id === toCollectionId) {
-        return {
-          ...collection,
-          requests: [...collection.requests, request]
-        };
-      }
-      return collection;
-    }));
+    setCollections(
+      collections.map((collection) => {
+        if (collection.id === fromCollectionId) {
+          return {
+            ...collection,
+            requests: collection.requests.filter((r) => r.id !== requestId),
+          };
+        }
+        if (collection.id === toCollectionId) {
+          return {
+            ...collection,
+            requests: [...collection.requests, request],
+          };
+        }
+        return collection;
+      })
+    );
   };
 
   const handleUpdateRequest = (updatedRequest: ApiRequest) => {
@@ -158,18 +169,22 @@ function App() {
     };
 
     const dataStr = JSON.stringify(exportData, null, 2);
-    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const dataBlob = new Blob([dataStr], { type: "application/json" });
     const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = url;
-    link.download = `${collection.name.toLowerCase().replace(/\s+/g, '-')}.json`;
+    link.download = `${collection.name
+      .toLowerCase()
+      .replace(/\s+/g, "-")}.json`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
   };
 
-  const handleImportCollection = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImportCollection = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = event.target.files?.[0];
     if (file) {
       const reader = new FileReader();
@@ -178,22 +193,23 @@ function App() {
           const importedData = JSON.parse(e.target?.result as string);
           const newCollection: Collection = {
             id: Date.now().toString(),
-            name: importedData.name || 'Imported Collection',
+            name: importedData.name || "Imported Collection",
             requests: importedData.requests.map((req: ApiRequest) => ({
               ...req,
-              id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+              id:
+                Date.now().toString() + Math.random().toString(36).substr(2, 9),
             })),
           };
           setCollections([...collections, newCollection]);
         } catch (error) {
-          console.error('Failed to parse imported collection:', error);
-          alert('Failed to import collection. Please check the file format.');
+          console.error("Failed to parse imported collection:", error);
+          alert("Failed to import collection. Please check the file format.");
         }
       };
       reader.readAsText(file);
     }
     if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+      fileInputRef.current.value = "";
     }
   };
 
@@ -221,20 +237,20 @@ function App() {
         method: selectedRequest.method,
         headers: {
           ...headers,
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body:
-          selectedRequest.method !== 'GET' && selectedRequest.body
+          selectedRequest.method !== "GET" && selectedRequest.body
             ? selectedRequest.body
             : undefined,
       });
 
-      const contentType = response.headers.get('content-type') || '';
+      const contentType = response.headers.get("content-type") || "";
       let responseData;
       let responseText = await response.text();
 
       try {
-        if (contentType.includes('application/json')) {
+        if (contentType.includes("application/json")) {
           responseData = JSON.parse(responseText);
         } else {
           responseData = responseText;
@@ -267,13 +283,13 @@ function App() {
         time: responseTime,
       });
     } catch (error) {
-      console.error('Request failed:', error);
+      console.error("Request failed:", error);
       setResponse({
         status: 0,
-        statusText: 'Request Failed',
+        statusText: "Request Failed",
         headers: {},
-        data: { error: 'Failed to send request' },
-        contentType: 'application/json',
+        data: { error: "Failed to send request" },
+        contentType: "application/json",
         size: { headers: 0, body: 0 },
         time: 0,
       });
@@ -284,14 +300,18 @@ function App() {
 
   const handleMouseMove = (e: MouseEvent) => {
     if (isDraggingSidebar.current) {
-      const newWidth = Math.min(Math.max(e.clientX, 200), window.innerWidth * 0.3);
+      const newWidth = Math.min(
+        Math.max(e.clientX, 200),
+        window.innerWidth * 0.3
+      );
       setSidebarWidth(newWidth);
     }
     if (isDraggingResponse.current) {
-      const container = document.getElementById('main-container');
+      const container = document.getElementById("main-container");
       if (container) {
         const containerRect = container.getBoundingClientRect();
-        const percentage = 1 - ((e.clientY - containerRect.top) / containerRect.height);
+        const percentage =
+          1 - (e.clientY - containerRect.top) / containerRect.height;
         const newHeight = Math.min(Math.max(percentage * 100, 20), 50);
         setResponseHeight(newHeight);
       }
@@ -301,18 +321,18 @@ function App() {
   const handleMouseUp = () => {
     isDraggingSidebar.current = false;
     isDraggingResponse.current = false;
-    document.removeEventListener('mousemove', handleMouseMove);
-    document.removeEventListener('mouseup', handleMouseUp);
+    document.removeEventListener("mousemove", handleMouseMove);
+    document.removeEventListener("mouseup", handleMouseUp);
   };
 
-  const startDragging = (type: 'sidebar' | 'response') => {
-    if (type === 'sidebar') {
+  const startDragging = (type: "sidebar" | "response") => {
+    if (type === "sidebar") {
       isDraggingSidebar.current = true;
     } else {
       isDraggingResponse.current = true;
     }
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
   };
 
   return (
@@ -355,7 +375,7 @@ function App() {
         </div>
         <div
           className="w-1 bg-gray-200 hover:bg-blue-400 cursor-col-resize transition-colors"
-          onMouseDown={() => startDragging('sidebar')}
+          onMouseDown={() => startDragging("sidebar")}
         />
         <div className="flex-1 flex flex-col overflow-hidden">
           {selectedRequest ? (
@@ -370,7 +390,7 @@ function App() {
               </div>
               <div
                 className="h-2 bg-gray-200 hover:bg-blue-400 cursor-row-resize transition-colors"
-                onMouseDown={() => startDragging('response')}
+                onMouseDown={() => startDragging("response")}
               />
               <div style={{ height: `${responseHeight}%` }}>
                 <ResponseViewer response={response} />
