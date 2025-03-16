@@ -25,7 +25,7 @@ export type ApiRequest = {
 export type Collection = {
   id: string;
   name: string;
-  requests: ApiRequest[];
+  api_requests: ApiRequest[];
 };
 
 export type ApiResponse = {

@@ -191,7 +191,7 @@ export default function Sidebar({
             </div>
 
             <div className="pl-6 space-y-1">
-              {collection.requests.map((request) => (
+              {collection.api_requests.map((request) => (
                 <div key={request.id} className="flex items-center group">
                   <button
                     onClick={() => onSelectRequest(request.id)}

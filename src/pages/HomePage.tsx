@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import { Upload } from "lucide-react";
+import { v4 as uuidv4 } from "uuid";
 
 import Sidebar from "../components/Sidebar";
 import RequestBuilder from "../components/RequestBuilder";
@@ -7,27 +8,29 @@ import ResponseViewer from "../components/ResponseViewer";
 
 import { ApiRequest, ApiResponse, Collection } from "../types";
 
+import { axV1 } from "../helpers/axios";
+
 export default function HomePage() {
   const [collections, setCollections] = useState<Collection[]>([
-    {
-      id: "1",
-      name: "My Collection",
-      requests: [
-        {
-          id: "1",
-          name: "Example Request",
-          method: "GET",
-          url: "https://jsonplaceholder.typicode.com/posts/1",
-          headers: [],
-          params: [],
-          body: "",
-        },
-      ],
-    },
+    // {
+    //   id: "1",
+    //   name: "My Collection",
+    //   api_requests: [
+    //     {
+    //       id: "1",
+    //       name: "Example Request",
+    //       method: "GET",
+    //       url: "https://jsonplaceholder.typicode.com/posts/1",
+    //       headers: [],
+    //       params: [],
+    //       body: "",
+    //     },
+    //   ],
+    // },
   ]);
 
   const [selectedRequestId, setSelectedRequestId] = useState<string | null>(
-    "1"
+    null
   );
   const [response, setResponse] = useState<ApiResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -39,44 +42,81 @@ export default function HomePage() {
 
   const selectedRequest = selectedRequestId
     ? collections
-        .flatMap((c) => c.requests)
+        .flatMap((c) => c.api_requests)
         .find((r) => r.id === selectedRequestId)
     : null;
 
-  const handleAddCollection = () => {
-    const newCollection: Collection = {
-      id: Date.now().toString(),
-      name: "New Collection",
-      requests: [],
-    };
-    setCollections([...collections, newCollection]);
-  };
+  const handleAddCollection = async () => {
+    const uniqueId = uuidv4();
 
-  const handleDeleteCollection = (collectionId: string) => {
-    setCollections(collections.filter((c) => c.id !== collectionId));
-    if (
-      selectedRequest?.id &&
-      collections
-        .find((c) => c.id === collectionId)
-        ?.requests.some((r) => r.id === selectedRequest.id)
-    ) {
-      setSelectedRequestId(null);
+    const newCollection: Collection = {
+      id: uniqueId,
+      name: "New Collection",
+      api_requests: [],
+    };
+
+    setIsLoading(true);
+    try {
+      await axV1.post("/groups", {
+        id: newCollection.id,
+        name: newCollection.name,
+      });
+      setCollections([...collections, newCollection]);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleRenameCollection = (collectionId: string, newName: string) => {
-    setCollections(
-      collections.map((collection) =>
-        collection.id === collectionId
-          ? { ...collection, name: newName }
-          : collection
-      )
-    );
+  const handleDeleteCollection = async (collectionId: string) => {
+    setIsLoading(true);
+    try {
+      await axV1.delete(`/groups/${collectionId}`);
+
+      setCollections(collections.filter((c) => c.id !== collectionId));
+      if (
+        selectedRequest?.id &&
+        collections
+          .find((c) => c.id === collectionId)
+          ?.api_requests.some((r) => r.id === selectedRequest.id)
+      ) {
+        setSelectedRequestId(null);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleRenameCollection = async (
+    collectionId: string,
+    newName: string
+  ) => {
+    setIsLoading(true);
+    try {
+      await axV1.put("/groups", { id: collectionId, name: newName });
+
+      setCollections(
+        collections.map((collection) =>
+          collection.id === collectionId
+            ? { ...collection, name: newName }
+            : collection
+        )
+      );
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleAddRequest = (collectionId: string) => {
+    const uniqueId = uuidv4();
+
     const newRequest: ApiRequest = {
-      id: Date.now().toString(),
+      id: uniqueId,
       name: "New Request",
       method: "GET",
       url: "",
@@ -90,11 +130,12 @@ export default function HomePage() {
         collection.id === collectionId
           ? {
               ...collection,
-              requests: [...collection.requests, newRequest],
+              api_requests: [...collection.api_requests, newRequest],
             }
           : collection
       )
     );
+
     setSelectedRequestId(newRequest.id);
   };
 
@@ -102,7 +143,7 @@ export default function HomePage() {
     setCollections(
       collections.map((collection) => ({
         ...collection,
-        requests: collection.requests.filter((r) => r.id !== requestId),
+        api_requests: collection.api_requests.filter((r) => r.id !== requestId),
       }))
     );
     if (selectedRequestId === requestId) {
@@ -114,7 +155,7 @@ export default function HomePage() {
     setCollections(
       collections.map((collection) => ({
         ...collection,
-        requests: collection.requests.map((request) =>
+        api_requests: collection.api_requests.map((request) =>
           request.id === requestId ? { ...request, name: newName } : request
         ),
       }))
@@ -125,7 +166,7 @@ export default function HomePage() {
     setCollections(
       collections.map((collection) => ({
         ...collection,
-        requests: collection.requests.map((request) =>
+        api_requests: collection.api_requests.map((request) =>
           request.id === updatedRequest.id ? updatedRequest : request
         ),
       }))
@@ -138,7 +179,7 @@ export default function HomePage() {
 
     const exportData = {
       name: collection.name,
-      requests: collection.requests,
+      api_requests: collection.api_requests,
     };
 
     const dataStr = JSON.stringify(exportData, null, 2);
@@ -167,7 +208,7 @@ export default function HomePage() {
           const newCollection: Collection = {
             id: Date.now().toString(),
             name: importedData.name || "Imported Collection",
-            requests: importedData.requests.map((req: ApiRequest) => ({
+            api_requests: importedData.api_requests.map((req: ApiRequest) => ({
               ...req,
               id:
                 Date.now().toString() + Math.random().toString(36).substr(2, 9),

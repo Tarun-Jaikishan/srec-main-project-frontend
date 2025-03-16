@@ -12,7 +12,7 @@ export default function TestPage() {
     {
       id: "1",
       name: "My Collection",
-      requests: [
+      api_requests: [
         {
           id: "1",
           name: "Example Request",
@@ -39,7 +39,7 @@ export default function TestPage() {
 
   const selectedRequest = selectedRequestId
     ? collections
-        .flatMap((c) => c.requests)
+        .flatMap((c) => c.api_requests)
         .find((r) => r.id === selectedRequestId)
     : null;
 
@@ -47,7 +47,7 @@ export default function TestPage() {
     const newCollection: Collection = {
       id: Date.now().toString(),
       name: "New Collection",
-      requests: [],
+      api_requests: [],
     };
     setCollections([...collections, newCollection]);
   };
@@ -58,7 +58,7 @@ export default function TestPage() {
       selectedRequest?.id &&
       collections
         .find((c) => c.id === collectionId)
-        ?.requests.some((r) => r.id === selectedRequest.id)
+        ?.api_requests.some((r) => r.id === selectedRequest.id)
     ) {
       setSelectedRequestId(null);
     }
@@ -90,7 +90,7 @@ export default function TestPage() {
         collection.id === collectionId
           ? {
               ...collection,
-              requests: [...collection.requests, newRequest],
+              api_requests: [...collection.api_requests, newRequest],
             }
           : collection
       )
@@ -102,7 +102,7 @@ export default function TestPage() {
     setCollections(
       collections.map((collection) => ({
         ...collection,
-        requests: collection.requests.filter((r) => r.id !== requestId),
+        api_requests: collection.api_requests.filter((r) => r.id !== requestId),
       }))
     );
     if (selectedRequestId === requestId) {
@@ -114,7 +114,7 @@ export default function TestPage() {
     setCollections(
       collections.map((collection) => ({
         ...collection,
-        requests: collection.requests.map((request) =>
+        api_requests: collection.api_requests.map((request) =>
           request.id === requestId ? { ...request, name: newName } : request
         ),
       }))
@@ -125,7 +125,7 @@ export default function TestPage() {
     setCollections(
       collections.map((collection) => ({
         ...collection,
-        requests: collection.requests.map((request) =>
+        api_requests: collection.api_requests.map((request) =>
           request.id === updatedRequest.id ? updatedRequest : request
         ),
       }))
@@ -138,7 +138,7 @@ export default function TestPage() {
 
     const exportData = {
       name: collection.name,
-      requests: collection.requests,
+      api_requests: collection.api_requests,
     };
 
     const dataStr = JSON.stringify(exportData, null, 2);
@@ -167,7 +167,7 @@ export default function TestPage() {
           const newCollection: Collection = {
             id: Date.now().toString(),
             name: importedData.name || "Imported Collection",
-            requests: importedData.requests.map((req: ApiRequest) => ({
+            api_requests: importedData.api_requests.map((req: ApiRequest) => ({
               ...req,
               id:
                 Date.now().toString() + Math.random().toString(36).substr(2, 9),
