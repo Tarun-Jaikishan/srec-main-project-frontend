@@ -1,13 +1,15 @@
 import { ChangeEvent, useState } from "react";
 import CodeMirror from "@uiw/react-codemirror";
 import { json } from "@codemirror/lang-json";
-import { Send, Plus, X } from "lucide-react";
+import { Send, Plus, X, Save } from "lucide-react";
+
 import { ApiRequest, HttpMethod, RequestHeader, Param } from "../types";
 
 type RequestBuilderProps = {
   request: ApiRequest;
   onUpdateRequest: (request: ApiRequest) => void;
   onSendRequest: () => void;
+  onSaveRequest: () => void;
   isLoading: boolean;
 };
 
@@ -17,6 +19,7 @@ export default function RequestBuilder({
   request,
   onUpdateRequest,
   onSendRequest,
+  onSaveRequest,
   isLoading,
 }: RequestBuilderProps) {
   const [activeTab, setActiveTab] = useState<"params" | "headers" | "body">(
@@ -108,6 +111,15 @@ export default function RequestBuilder({
           className={`px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed`}
         >
           <Send size={16} /> Send
+        </button>
+
+        <button
+          onClick={onSaveRequest}
+          disabled={isLoading}
+          // disabled={isLoading || true}
+          className={`px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed`}
+        >
+          <Save size={16} /> Save
         </button>
       </div>
 

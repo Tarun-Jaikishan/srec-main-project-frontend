@@ -215,6 +215,27 @@ export default function HomePage() {
     );
   };
 
+  const handleSaveRequest = async () => {
+    if (!selectedRequest) return;
+    setIsLoading(true);
+
+    try {
+      await axV1.put("/api-requests", {
+        id: selectedRequest.id,
+        name: selectedRequest.name,
+        method: selectedRequest.method,
+        url: selectedRequest.url,
+        body: selectedRequest.body,
+        params: selectedRequest.params,
+        headers: selectedRequest.headers,
+      });
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleExportCollection = (collectionId: string) => {
     const collection = collections.find((c) => c.id === collectionId);
     if (!collection) return;
@@ -438,6 +459,7 @@ export default function HomePage() {
                   request={selectedRequest}
                   onUpdateRequest={handleUpdateRequest}
                   onSendRequest={handleSendRequest}
+                  onSaveRequest={handleSaveRequest}
                   isLoading={isLoading}
                 />
               </div>
