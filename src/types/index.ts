@@ -6,7 +6,7 @@ export type RequestHeader = {
   enabled: boolean;
 };
 
-export type QueryParam = {
+export type Param = {
   key: string;
   value: string;
   enabled: boolean;
@@ -18,7 +18,7 @@ export type ApiRequest = {
   method: HttpMethod;
   url: string;
   headers: RequestHeader[];
-  queryParams: QueryParam[];
+  params: Param[];
   body: string;
 };
 

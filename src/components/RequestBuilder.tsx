@@ -34,10 +34,7 @@ export default function RequestBuilder({
   const handleAddParam = () => {
     onUpdateRequest({
       ...request,
-      queryParams: [
-        ...request.queryParams,
-        { key: "", value: "", enabled: true },
-      ],
+      params: [...request.params, { key: "", value: "", enabled: true }],
     });
   };
 
@@ -46,14 +43,14 @@ export default function RequestBuilder({
     field: keyof QueryParam,
     value: string | boolean
   ) => {
-    const newParams = [...request.queryParams];
+    const newParams = [...request.params];
     newParams[index] = { ...newParams[index], [field]: value };
-    onUpdateRequest({ ...request, queryParams: newParams });
+    onUpdateRequest({ ...request, params: newParams });
   };
 
   const handleRemoveParam = (index: number) => {
-    const newParams = request.queryParams.filter((_, i) => i !== index);
-    onUpdateRequest({ ...request, queryParams: newParams });
+    const newParams = request.params.filter((_, i) => i !== index);
+    onUpdateRequest({ ...request, params: newParams });
   };
 
   const handleAddHeader = () => {
@@ -145,7 +142,7 @@ export default function RequestBuilder({
         <div className="p-4">
           {activeTab === "params" && (
             <div className="space-y-2">
-              {request.queryParams.map((param, index) => (
+              {request.params.map((param, index) => (
                 <div key={index} className="flex gap-2 items-center">
                   <input
                     type="checkbox"

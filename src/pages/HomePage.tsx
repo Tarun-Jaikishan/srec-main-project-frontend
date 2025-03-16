@@ -19,7 +19,7 @@ export default function HomePage() {
           method: "GET",
           url: "https://jsonplaceholder.typicode.com/posts/1",
           headers: [],
-          queryParams: [],
+          params: [],
           body: "",
         },
       ],
@@ -81,7 +81,7 @@ export default function HomePage() {
       method: "GET",
       url: "",
       headers: [],
-      queryParams: [],
+      params: [],
       body: "",
     };
 
@@ -199,7 +199,7 @@ export default function HomePage() {
         });
 
       const url = new URL(selectedRequest.url);
-      selectedRequest.queryParams
+      selectedRequest.params
         .filter((p) => p.enabled && p.key.trim())
         .forEach((p) => {
           url.searchParams.append(p.key.trim(), p.value);
