@@ -1,9 +1,11 @@
 import { useState, useRef } from "react";
+import { Upload } from "lucide-react";
+
 import Sidebar from "../components/Sidebar";
 import RequestBuilder from "../components/RequestBuilder";
 import ResponseViewer from "../components/ResponseViewer";
+
 import { ApiRequest, ApiResponse, Collection } from "../types";
-import { Upload } from "lucide-react";
 
 export default function HomePage() {
   const [collections, setCollections] = useState<Collection[]>([
@@ -309,7 +311,7 @@ export default function HomePage() {
   return (
     <div className="flex flex-col h-screen">
       <div className="bg-gray-100 border-b px-4 py-2 flex items-center gap-4">
-        <div className="flex-1 font-semibold">API Client</div>
+        <div className="flex-1 font-semibold">Test API</div>
         <div className="flex items-center gap-2">
           <input
             type="file"
