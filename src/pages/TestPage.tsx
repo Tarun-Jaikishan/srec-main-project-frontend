@@ -1,9 +1,9 @@
 import { useState, useRef } from "react";
 import { Upload } from "lucide-react";
 
-import Sidebar from "../components/Sidebar";
-import RequestBuilder from "../components/RequestBuilder";
-import ResponseViewer from "../components/ResponseViewer";
+import Sidebar from "../components/home/Sidebar";
+import RequestBuilder from "../components/home/RequestBuilder";
+import ResponseViewer from "../components/home/ResponseViewer";
 
 import { ApiRequest, ApiResponse, Collection } from "../types";
 

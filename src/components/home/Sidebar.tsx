@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { FolderOpen, Plus, Trash2, Download, MoreVertical } from "lucide-react";
 
-import { Collection } from "../types";
+import { Collection } from "../../types";
 
 type SidebarProps = {
   collections: Collection[];

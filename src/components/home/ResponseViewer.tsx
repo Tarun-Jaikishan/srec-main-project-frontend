@@ -3,7 +3,7 @@ import CodeMirror from "@uiw/react-codemirror";
 import { json } from "@codemirror/lang-json";
 import { Copy, Check, Clock } from "lucide-react";
 
-import { ApiResponse } from "../types";
+import { ApiResponse } from "../../types";
 
 interface ResponseViewerProps {
   response: ApiResponse | null;

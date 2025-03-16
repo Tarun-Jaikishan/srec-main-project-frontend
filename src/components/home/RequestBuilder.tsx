@@ -3,7 +3,7 @@ import CodeMirror from "@uiw/react-codemirror";
 import { json } from "@codemirror/lang-json";
 import { Send, Plus, X, Save } from "lucide-react";
 
-import { ApiRequest, HttpMethod, RequestHeader, Param } from "../types";
+import { ApiRequest, HttpMethod, RequestHeader, Param } from "../../types";
 
 type RequestBuilderProps = {
   request: ApiRequest;
