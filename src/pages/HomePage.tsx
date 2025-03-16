@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { Upload } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 import axios from "axios";
@@ -13,6 +14,9 @@ import { axV1 } from "../helpers/axios";
 import { toast } from "react-toastify";
 
 export default function HomePage() {
+  const location = useLocation();
+  const currentPath = location.pathname;
+
   const [collections, setCollections] = useState<Collection[]>([]);
 
   const [selectedRequestId, setSelectedRequestId] = useState<string | null>(
@@ -432,9 +436,31 @@ export default function HomePage() {
 
   return (
     <div className="flex flex-col h-screen">
-      <div className="bg-gray-100 border-b px-4 py-2 flex items-center gap-4">
-        <div className="flex-1">
-          <h3 className="font-semibold">Test API</h3>
+      <div className="bg-gray-100 border-b px-4 py-2 flex justify-between items-center gap-4">
+        <h3 className="text-lg font-semibold">Test API</h3>
+        <div className="flex items-center gap-5">
+          <div className="flex gap-5">
+            <Link
+              to="/"
+              className={`px-3 py-1.5 font-medium rounded-md transition-colors duration-200 ${
+                currentPath === "/"
+                  ? "bg-blue-100 text-blue-700 border-b-2 border-blue-200"
+                  : "text-blue-600 hover:text-blue-800 hover:bg-blue-50"
+              }`}
+            >
+              My APIs
+            </Link>
+            <Link
+              to="/test"
+              className={`px-3 py-1.5 font-medium rounded-md transition-colors duration-200 ${
+                currentPath === "/test"
+                  ? "bg-blue-100 text-blue-700 border-b-2 border-blue-200"
+                  : "text-blue-600 hover:text-blue-800 hover:bg-blue-50"
+              }`}
+            >
+              Test APIs
+            </Link>
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <input
