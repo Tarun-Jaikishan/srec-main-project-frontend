@@ -433,7 +433,9 @@ export default function HomePage() {
   return (
     <div className="flex flex-col h-screen">
       <div className="bg-gray-100 border-b px-4 py-2 flex items-center gap-4">
-        <div className="flex-1 font-semibold">Test API</div>
+        <div className="flex-1">
+          <h3 className="font-semibold">Test API</h3>
+        </div>
         <div className="flex items-center gap-2">
           <input
             type="file"

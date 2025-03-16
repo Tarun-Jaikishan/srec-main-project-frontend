@@ -1,5 +1,7 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Upload } from "lucide-react";
+import { v4 as uuidv4 } from "uuid";
+import axios from "axios";
 
 import Sidebar from "../components/home/Sidebar";
 import RequestBuilder from "../components/home/RequestBuilder";
@@ -7,27 +9,14 @@ import ResponseViewer from "../components/home/ResponseViewer";
 
 import { ApiRequest, ApiResponse, Collection } from "../types";
 
+import { axV1 } from "../helpers/axios";
+import { toast } from "react-toastify";
+
 export default function TestPage() {
-  const [collections, setCollections] = useState<Collection[]>([
-    {
-      id: "1",
-      name: "My Collection",
-      api_requests: [
-        {
-          id: "1",
-          name: "Example Request",
-          method: "GET",
-          url: "https://jsonplaceholder.typicode.com/posts/1",
-          headers: [],
-          params: [],
-          body: "",
-        },
-      ],
-    },
-  ]);
+  const [collections, setCollections] = useState<Collection[]>([]);
 
   const [selectedRequestId, setSelectedRequestId] = useState<string | null>(
-    "1"
+    null
   );
   const [response, setResponse] = useState<ApiResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -37,91 +26,187 @@ export default function TestPage() {
   const isDraggingSidebar = useRef(false);
   const isDraggingResponse = useRef(false);
 
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    setIsLoading(true);
+    try {
+      const response = await axV1.get("/groups", {
+        params: { page: 1, perPage: -1 },
+      });
+
+      let data: any[] = response.data.data.records;
+
+      setCollections(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const selectedRequest = selectedRequestId
     ? collections
         .flatMap((c) => c.api_requests)
         .find((r) => r.id === selectedRequestId)
     : null;
 
-  const handleAddCollection = () => {
+  const handleAddCollection = async () => {
+    const uniqueId = uuidv4();
+
     const newCollection: Collection = {
-      id: Date.now().toString(),
+      id: uniqueId,
       name: "New Collection",
       api_requests: [],
     };
-    setCollections([...collections, newCollection]);
-  };
 
-  const handleDeleteCollection = (collectionId: string) => {
-    setCollections(collections.filter((c) => c.id !== collectionId));
-    if (
-      selectedRequest?.id &&
-      collections
-        .find((c) => c.id === collectionId)
-        ?.api_requests.some((r) => r.id === selectedRequest.id)
-    ) {
-      setSelectedRequestId(null);
+    setIsLoading(true);
+    try {
+      await axV1.post("/groups", {
+        id: newCollection.id,
+        name: newCollection.name,
+      });
+      setCollections([...collections, newCollection]);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleRenameCollection = (collectionId: string, newName: string) => {
-    setCollections(
-      collections.map((collection) =>
-        collection.id === collectionId
-          ? { ...collection, name: newName }
-          : collection
-      )
-    );
-  };
+  const handleDeleteCollection = async (collectionId: string) => {
+    setIsLoading(true);
+    try {
+      await axV1.delete(`/groups/${collectionId}`);
 
-  const handleAddRequest = (collectionId: string) => {
-    const newRequest: ApiRequest = {
-      id: Date.now().toString(),
-      name: "New Request",
-      method: "GET",
-      url: "",
-      headers: [],
-      params: [],
-      body: "",
-    };
-
-    setCollections(
-      collections.map((collection) =>
-        collection.id === collectionId
-          ? {
-              ...collection,
-              api_requests: [...collection.api_requests, newRequest],
-            }
-          : collection
-      )
-    );
-    setSelectedRequestId(newRequest.id);
-  };
-
-  const handleDeleteRequest = (requestId: string) => {
-    setCollections(
-      collections.map((collection) => ({
-        ...collection,
-        api_requests: collection.api_requests.filter((r) => r.id !== requestId),
-      }))
-    );
-    if (selectedRequestId === requestId) {
-      setSelectedRequestId(null);
+      setCollections(collections.filter((c) => c.id !== collectionId));
+      if (
+        selectedRequest?.id &&
+        collections
+          .find((c) => c.id === collectionId)
+          ?.api_requests.some((r) => r.id === selectedRequest.id)
+      ) {
+        setSelectedRequestId(null);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleRenameRequest = (requestId: string, newName: string) => {
-    setCollections(
-      collections.map((collection) => ({
-        ...collection,
-        api_requests: collection.api_requests.map((request) =>
-          request.id === requestId ? { ...request, name: newName } : request
-        ),
-      }))
-    );
+  const handleRenameCollection = async (
+    collectionId: string,
+    newName: string
+  ) => {
+    setIsLoading(true);
+    try {
+      await axV1.put("/groups", { id: collectionId, name: newName });
+
+      setCollections(
+        collections.map((collection) =>
+          collection.id === collectionId
+            ? { ...collection, name: newName }
+            : collection
+        )
+      );
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleAddRequest = async (collectionId: string) => {
+    setIsLoading(true);
+    try {
+      const uniqueId = uuidv4();
+
+      const newRequest: ApiRequest = {
+        id: uniqueId,
+        name: "New Request",
+        method: "GET",
+        url: "",
+        headers: [],
+        params: [],
+        body: "",
+      };
+
+      await axV1.post("/api-requests", {
+        id: newRequest.id,
+        group_id: collectionId,
+        name: newRequest.name,
+        method: newRequest.method,
+      });
+
+      setCollections(
+        collections.map((collection) =>
+          collection.id === collectionId
+            ? {
+                ...collection,
+                api_requests: [...collection.api_requests, newRequest],
+              }
+            : collection
+        )
+      );
+
+      setSelectedRequestId(newRequest.id);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDeleteRequest = async (requestId: string) => {
+    setIsLoading(true);
+    try {
+      await axV1.delete(`/api-requests/${requestId}`);
+
+      setCollections(
+        collections.map((collection) => ({
+          ...collection,
+          api_requests: collection.api_requests.filter(
+            (r) => r.id !== requestId
+          ),
+        }))
+      );
+      if (selectedRequestId === requestId) setSelectedRequestId(null);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleRenameRequest = async (requestId: string, newName: string) => {
+    setIsLoading(true);
+    try {
+      await axV1.put("/api-requests", {
+        id: requestId,
+        name: newName,
+      });
+
+      setCollections(
+        collections.map((collection) => ({
+          ...collection,
+          api_requests: collection.api_requests.map((request) =>
+            request.id === requestId ? { ...request, name: newName } : request
+          ),
+        }))
+      );
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleUpdateRequest = (updatedRequest: ApiRequest) => {
+    console.log(updatedRequest);
+
     setCollections(
       collections.map((collection) => ({
         ...collection,
@@ -130,6 +215,38 @@ export default function TestPage() {
         ),
       }))
     );
+  };
+
+  const handleSaveRequest = async () => {
+    if (!selectedRequest) return;
+    setIsLoading(true);
+
+    try {
+      let parsedBody = null;
+      if (selectedRequest.body) {
+        try {
+          parsedBody = JSON.parse(selectedRequest.body);
+        } catch (e) {
+          toast.error("Invalid JSON body");
+          console.error("Invalid JSON body");
+          return;
+        }
+      }
+
+      await axV1.put("/api-requests", {
+        id: selectedRequest.id,
+        name: selectedRequest.name,
+        method: selectedRequest.method,
+        url: selectedRequest.url,
+        body: parsedBody,
+        params: selectedRequest.params,
+        headers: selectedRequest.headers,
+      });
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleExportCollection = (collectionId: string) => {
@@ -191,57 +308,44 @@ export default function TestPage() {
     setIsLoading(true);
 
     try {
-      const headers: Record<string, string> = {};
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+
       selectedRequest.headers
         .filter((h) => h.enabled && h.key.trim())
         .forEach((h) => {
           headers[h.key.trim()] = h.value;
         });
 
-      const url = new URL(selectedRequest.url);
+      const params: Record<string, string> = {};
       selectedRequest.params
         .filter((p) => p.enabled && p.key.trim())
         .forEach((p) => {
-          url.searchParams.append(p.key.trim(), p.value);
+          params[p.key.trim()] = p.value;
         });
 
       const startTime = performance.now();
-      const response = await fetch(url.toString(), {
+      const response = await axios({
         method: selectedRequest.method,
-        headers: {
-          ...headers,
-          "Content-Type": "application/json",
-        },
-        body:
+        url: selectedRequest.url,
+        headers,
+        params,
+        data:
           selectedRequest.method !== "GET" && selectedRequest.body
             ? selectedRequest.body
             : undefined,
       });
 
-      const contentType = response.headers.get("content-type") || "";
-      let responseData;
-      let responseText = await response.text();
-
-      try {
-        if (contentType.includes("application/json")) {
-          responseData = JSON.parse(responseText);
-        } else {
-          responseData = responseText;
-        }
-      } catch {
-        responseData = responseText;
-      }
-
       const endTime = performance.now();
       const responseTime = endTime - startTime;
 
-      const responseHeaders: Record<string, string> = {};
-      response.headers.forEach((value, key) => {
-        responseHeaders[key] = value;
-      });
+      const responseHeaders: any = response.headers || {};
+      const responseData = response.data;
+      const contentType = response.headers["content-type"] || "";
 
       const headerSize = JSON.stringify(responseHeaders).length;
-      const bodySize = responseText.length;
+      const bodySize = JSON.stringify(responseData).length;
 
       setResponse({
         status: response.status,
@@ -257,7 +361,7 @@ export default function TestPage() {
       });
     } catch (error) {
       console.error("Request failed:", error);
-      setResponse({
+      let errorResponse = {
         status: 0,
         statusText: "Request Failed",
         headers: {},
@@ -265,7 +369,25 @@ export default function TestPage() {
         contentType: "application/json",
         size: { headers: 0, body: 0 },
         time: 0,
-      });
+      };
+
+      if (axios.isAxiosError(error) && error.response) {
+        errorResponse = {
+          status: error.response.status,
+          statusText: error.response.statusText,
+          headers: error.response.headers,
+          data: error.response.data,
+          contentType:
+            error.response.headers["content-type"] || "application/json",
+          size: {
+            headers: JSON.stringify(error.response.headers).length,
+            body: JSON.stringify(error.response.data).length,
+          },
+          time: 0,
+        };
+      }
+
+      setResponse(errorResponse);
     } finally {
       setIsLoading(false);
     }
@@ -311,7 +433,9 @@ export default function TestPage() {
   return (
     <div className="flex flex-col h-screen">
       <div className="bg-gray-100 border-b px-4 py-2 flex items-center gap-4">
-        <div className="flex-1 font-semibold">Test API</div>
+        <div className="flex-1">
+          <h3 className="font-semibold">Test API</h3>
+        </div>
         <div className="flex items-center gap-2">
           <input
             type="file"
@@ -355,6 +479,7 @@ export default function TestPage() {
                   request={selectedRequest}
                   onUpdateRequest={handleUpdateRequest}
                   onSendRequest={handleSendRequest}
+                  onSaveRequest={handleSaveRequest}
                   isLoading={isLoading}
                 />
               </div>
@@ -377,7 +502,7 @@ export default function TestPage() {
           <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center">
             <div className="bg-white p-4 rounded-lg shadow-lg flex items-center gap-3">
               <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-              <span>Sending request...</span>
+              <span>Loading...</span>
             </div>
           </div>
         )}
