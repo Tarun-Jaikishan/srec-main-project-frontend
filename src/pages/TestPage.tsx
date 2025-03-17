@@ -538,7 +538,7 @@ export default function HomePage() {
             </>
           ) : (
             <div className="flex-1 flex items-center justify-center text-gray-500">
-              Select a request or create a new one to get started
+              Select a test case or create a new one to get started
             </div>
           )}
         </div>
