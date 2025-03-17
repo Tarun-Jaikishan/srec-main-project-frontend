@@ -3,17 +3,17 @@ import { Link, useLocation } from "react-router-dom";
 import { Upload } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 import axios from "axios";
+import { toast } from "react-toastify";
 
-import Sidebar from "../components/home/Sidebar";
-import RequestBuilder from "../components/home/RequestBuilder";
-import ResponseViewer from "../components/home/ResponseViewer";
+import TestSidebar from "../components/test/TestSidebar";
+import TestRequestBuilder from "../components/test/TestRequestBuilder";
+import TestResponseViewer from "../components/test/TestResponseViewer";
 
 import { ApiRequest, ApiResponse, Collection } from "../types";
 
 import { axV1 } from "../helpers/axios";
-import { toast } from "react-toastify";
 
-export default function TestPage() {
+export default function HomePage() {
   const location = useLocation();
   const currentPath = location.pathname;
 
@@ -116,6 +116,18 @@ export default function TestPage() {
             : collection
         )
       );
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGenerateTestCase = async (collectionId: string) => {
+    setIsLoading(true);
+    try {
+      console.log("hi");
+      console.log(collectionId);
     } catch (err) {
       console.error(err);
     } finally {
@@ -226,14 +238,18 @@ export default function TestPage() {
     setIsLoading(true);
 
     try {
-      let parsedBody = null;
+      let processedBody = selectedRequest.body;
+      console.log(selectedRequest.body);
+
       if (selectedRequest.body) {
-        try {
-          parsedBody = JSON.parse(selectedRequest.body);
-        } catch (e) {
-          toast.error("Invalid JSON body");
-          console.error("Invalid JSON body");
-          return;
+        if (typeof selectedRequest.body === "string") {
+          try {
+            processedBody = JSON.parse(selectedRequest.body);
+          } catch (e) {
+            toast.error("Invalid JSON body");
+            console.error("Invalid JSON body");
+            return;
+          }
         }
       }
 
@@ -242,10 +258,12 @@ export default function TestPage() {
         name: selectedRequest.name,
         method: selectedRequest.method,
         url: selectedRequest.url,
-        body: parsedBody,
+        body: processedBody,
         params: selectedRequest.params,
         headers: selectedRequest.headers,
       });
+
+      toast.success("Save Successful");
     } catch (err) {
       console.error(err);
     } finally {
@@ -483,13 +501,14 @@ export default function TestPage() {
 
       <div className="flex flex-1 overflow-hidden relative" id="main-container">
         <div style={{ width: sidebarWidth, flexShrink: 0 }}>
-          <Sidebar
+          <TestSidebar
             collections={collections}
             selectedRequestId={selectedRequestId}
             onSelectRequest={setSelectedRequestId}
             onAddCollection={handleAddCollection}
             onDeleteCollection={handleDeleteCollection}
             onRenameCollection={handleRenameCollection}
+            onGenerateTestCase={handleGenerateTestCase}
             onAddRequest={handleAddRequest}
             onDeleteRequest={handleDeleteRequest}
             onRenameRequest={handleRenameRequest}
@@ -501,7 +520,7 @@ export default function TestPage() {
           {selectedRequest ? (
             <>
               <div className="flex-1 min-h-0 overflow-auto">
-                <RequestBuilder
+                <TestRequestBuilder
                   request={selectedRequest}
                   onUpdateRequest={handleUpdateRequest}
                   onSendRequest={handleSendRequest}
@@ -514,7 +533,7 @@ export default function TestPage() {
                 onMouseDown={() => startDragging("response")}
               />
               <div style={{ height: `${responseHeight}%` }}>
-                <ResponseViewer response={response} />
+                <TestResponseViewer response={response} />
               </div>
             </>
           ) : (
