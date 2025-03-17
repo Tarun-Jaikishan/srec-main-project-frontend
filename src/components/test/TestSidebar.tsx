@@ -89,7 +89,7 @@ function CollectionMenu({
             <Zap size={16} />
             Execute All
           </button>
-          <button
+          {/* <button
             onClick={() => {
               onExport();
               setIsOpen(false);
@@ -98,7 +98,7 @@ function CollectionMenu({
           >
             <Download size={16} />
             Export Test Collection
-          </button>
+          </button> */}
           <button
             onClick={() => {
               onDelete();

@@ -480,7 +480,7 @@ export default function HomePage() {
             </Link>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        {/* <div className="flex items-center gap-2">
           <input
             type="file"
             accept=".json"
@@ -496,7 +496,7 @@ export default function HomePage() {
             <Upload size={16} />
             Import Collection
           </label>
-        </div>
+        </div> */}
       </div>
 
       <div className="flex flex-1 overflow-hidden relative" id="main-container">
