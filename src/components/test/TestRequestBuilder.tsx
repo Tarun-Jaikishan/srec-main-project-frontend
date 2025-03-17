@@ -1,7 +1,15 @@
 import { ChangeEvent, useState } from "react";
 import CodeMirror from "@uiw/react-codemirror";
 import { json } from "@codemirror/lang-json";
-import { Send, Plus, X, Save, CheckCircle, XCircle } from "lucide-react";
+import {
+  Send,
+  Plus,
+  X,
+  Save,
+  CheckCircle,
+  XCircle,
+  TestTube,
+} from "lucide-react";
 
 import { ApiRequest, HttpMethod, RequestHeader, Param } from "../../types";
 
@@ -109,12 +117,29 @@ export default function TestRequestBuilder({
           className="flex-1 px-3 py-2 border rounded"
         />
 
+        <select
+          // value={request.method}
+          // onChange={(e) => handleMethodChange(e.target.value as HttpMethod)}
+          className="px-3 py-2 border rounded bg-white"
+        >
+          <option value="true">Pass</option>
+          <option value="false">Fail</option>
+        </select>
+
         <button
           onClick={onSendRequest}
           disabled={isLoading}
           className={`px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed`}
         >
           <Send size={16} /> Send
+        </button>
+
+        <button
+          onClick={onSendRequest}
+          disabled={isLoading}
+          className={`px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed`}
+        >
+          <TestTube size={16} /> Test
         </button>
 
         <button
@@ -164,12 +189,12 @@ export default function TestRequestBuilder({
             {/* Pass */}
             <div className="flex items-center">
               <CheckCircle className="text-green-500 mr-2" size={20} />
-              <span className="text-green-500 font-medium">Pass</span>
+              <span className="text-green-500 font-medium">Passed</span>
             </div>
             {/* Fail */}
             {/* <div className="flex items-center mt-2">
               <XCircle className="text-red-500 mr-2" size={20} />
-              <span className="text-red-500 font-medium">Fail</span>
+              <span className="text-red-500 font-medium">Failed</span>
             </div> */}
           </div>
         </div>
