@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { Upload } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 import Sidebar from "../components/home/Sidebar";
 import RequestBuilder from "../components/home/RequestBuilder";
@@ -11,7 +12,6 @@ import ResponseViewer from "../components/home/ResponseViewer";
 import { ApiRequest, ApiResponse, Collection } from "../types";
 
 import { axV1 } from "../helpers/axios";
-import { toast } from "react-toastify";
 
 export default function HomePage() {
   const location = useLocation();
@@ -238,14 +238,18 @@ export default function HomePage() {
     setIsLoading(true);
 
     try {
-      let parsedBody = null;
+      let processedBody = selectedRequest.body;
+      console.log(selectedRequest.body);
+
       if (selectedRequest.body) {
-        try {
-          parsedBody = JSON.parse(selectedRequest.body);
-        } catch (e) {
-          toast.error("Invalid JSON body");
-          console.error("Invalid JSON body");
-          return;
+        if (typeof selectedRequest.body === "string") {
+          try {
+            processedBody = JSON.parse(selectedRequest.body);
+          } catch (e) {
+            toast.error("Invalid JSON body");
+            console.error("Invalid JSON body");
+            return;
+          }
         }
       }
 
@@ -254,10 +258,12 @@ export default function HomePage() {
         name: selectedRequest.name,
         method: selectedRequest.method,
         url: selectedRequest.url,
-        body: parsedBody,
+        body: processedBody,
         params: selectedRequest.params,
         headers: selectedRequest.headers,
       });
+
+      toast.success("Save Successful");
     } catch (err) {
       console.error(err);
     } finally {
