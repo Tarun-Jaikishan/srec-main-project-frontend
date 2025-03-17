@@ -1,7 +1,7 @@
 import { ChangeEvent, useState } from "react";
 import CodeMirror from "@uiw/react-codemirror";
 import { json } from "@codemirror/lang-json";
-import { Send, Plus, X, Save } from "lucide-react";
+import { Send, Plus, X, Save, CheckCircle, XCircle } from "lucide-react";
 
 import { ApiRequest, HttpMethod, RequestHeader, Param } from "../../types";
 
@@ -22,9 +22,9 @@ export default function TestRequestBuilder({
   onSaveRequest,
   isLoading,
 }: RequestBuilderProps) {
-  const [activeTab, setActiveTab] = useState<"params" | "headers" | "body">(
-    "params"
-  );
+  const [activeTab, setActiveTab] = useState<
+    "params" | "headers" | "body" | "description"
+  >("params");
 
   const handleMethodChange = (method: HttpMethod) => {
     onUpdateRequest({ ...request, method });
@@ -82,6 +82,10 @@ export default function TestRequestBuilder({
     onUpdateRequest({ ...request, body: value });
   };
 
+  const handleDescriptionChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    onUpdateRequest({ ...request, description: e.target.value });
+  };
+
   return (
     <div className="p-4 h-full overflow-y-auto">
       <div className="flex gap-2 mb-4">
@@ -116,7 +120,6 @@ export default function TestRequestBuilder({
         <button
           onClick={onSaveRequest}
           disabled={isLoading}
-          // disabled={isLoading || true}
           className={`px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed`}
         >
           <Save size={16} /> Save
@@ -149,9 +152,38 @@ export default function TestRequestBuilder({
           >
             Body
           </button>
+          <button
+            className={`px-4 py-2 ${
+              activeTab === "description" ? "border-b-2 border-blue-600" : ""
+            }`}
+            onClick={() => setActiveTab("description")}
+          >
+            Description
+          </button>
+          <div className="px-4 py-2">
+            {/* Pass */}
+            <div className="flex items-center">
+              <CheckCircle className="text-green-500 mr-2" size={20} />
+              <span className="text-green-500 font-medium">Pass</span>
+            </div>
+            {/* Fail */}
+            {/* <div className="flex items-center mt-2">
+              <XCircle className="text-red-500 mr-2" size={20} />
+              <span className="text-red-500 font-medium">Fail</span>
+            </div> */}
+          </div>
         </div>
 
         <div className="p-4">
+          {activeTab === "description" && (
+            <textarea
+              value={request.description || ""}
+              onChange={handleDescriptionChange}
+              placeholder="Enter request description"
+              rows={8}
+              className="w-full px-3 py-2 border rounded resize-none"
+            />
+          )}
           {activeTab === "params" && (
             <div className="space-y-2">
               {request.params.map((param, index) => (

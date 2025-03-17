@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import {
-  FolderOpen,
   Plus,
   Trash2,
   Download,
   MoreVertical,
   Zap,
+  TestTube,
 } from "lucide-react";
 
 import { Collection } from "../../types";
@@ -77,7 +77,7 @@ function CollectionMenu({
             className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 flex items-center gap-2"
           >
             <Plus size={16} />
-            Add Request
+            Add Test Case
           </button>
           <button
             onClick={() => {
@@ -87,7 +87,7 @@ function CollectionMenu({
             className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 flex items-center gap-2"
           >
             <Zap size={16} />
-            Generate Test Cases
+            Execute All
           </button>
           <button
             onClick={() => {
@@ -97,7 +97,7 @@ function CollectionMenu({
             className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 flex items-center gap-2"
           >
             <Download size={16} />
-            Export Collection
+            Export Test Collection
           </button>
           <button
             onClick={() => {
@@ -107,7 +107,7 @@ function CollectionMenu({
             className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
           >
             <Trash2 size={16} />
-            Delete Collection
+            Delete Test Collection
           </button>
         </div>
       )}
@@ -183,11 +183,11 @@ export default function TestSidebar({
   return (
     <div className="bg-gray-50 border-r border-gray-200 h-full overflow-y-auto p-4">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold">Collections</h2>
+        <h2 className="text-lg font-semibold">Test Collections</h2>
         <button
           onClick={onAddCollection}
           className="p-1 hover:bg-gray-200 rounded"
-          title="Add Collection"
+          title="Add Test Collection"
         >
           <Plus size={20} />
         </button>
@@ -197,7 +197,7 @@ export default function TestSidebar({
         {collections.map((collection) => (
           <div key={collection.id} className="p-2 rounded">
             <div className="flex items-center gap-2 mb-2">
-              <FolderOpen size={16} />
+              <TestTube size={16} />
               <EditableText
                 value={collection.name}
                 onSave={(newName) => onRenameCollection(collection.id, newName)}
@@ -234,7 +234,7 @@ export default function TestSidebar({
                   <button
                     onClick={() => onDeleteRequest(request.id)}
                     className="opacity-0 group-hover:opacity-100 p-1 hover:bg-gray-200 rounded text-red-600"
-                    title="Delete Request"
+                    title="Delete Test Case"
                   >
                     <Trash2 size={14} />
                   </button>
