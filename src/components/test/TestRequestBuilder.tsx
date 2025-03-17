@@ -11,11 +11,11 @@ import {
   TestTube,
 } from "lucide-react";
 
-import { ApiRequest, HttpMethod, RequestHeader, Param } from "../../types";
+import { TestCase, HttpMethod, RequestHeader, Param } from "../../types";
 
 type RequestBuilderProps = {
-  request: ApiRequest;
-  onUpdateRequest: (request: ApiRequest) => void;
+  request: TestCase;
+  onUpdateRequest: (request: TestCase) => void;
   onSendRequest: () => void;
   onSaveRequest: () => void;
   isLoading: boolean;
@@ -94,6 +94,10 @@ export default function TestRequestBuilder({
     onUpdateRequest({ ...request, description: e.target.value });
   };
 
+  const handleExpectedStatusChange = (value: string) => {
+    onUpdateRequest({ ...request, expected_status: value == "true" });
+  };
+
   return (
     <div className="p-4 h-full overflow-y-auto">
       <div className="flex gap-2 mb-4">
@@ -117,15 +121,6 @@ export default function TestRequestBuilder({
           className="flex-1 px-3 py-2 border rounded"
         />
 
-        <select
-          // value={request.method}
-          // onChange={(e) => handleMethodChange(e.target.value as HttpMethod)}
-          className="px-3 py-2 border rounded bg-white"
-        >
-          <option value="true">Pass</option>
-          <option value="false">Fail</option>
-        </select>
-
         <button
           onClick={onSendRequest}
           disabled={isLoading}
@@ -133,6 +128,15 @@ export default function TestRequestBuilder({
         >
           <Send size={16} /> Send
         </button>
+
+        <select
+          value={(request as any).expected_status == true ? "true" : "false"}
+          onChange={(e) => handleExpectedStatusChange(e.target.value)}
+          className="px-3 py-2 border rounded bg-white"
+        >
+          <option value="true">Pass</option>
+          <option value="false">Fail</option>
+        </select>
 
         <button
           onClick={onSendRequest}

@@ -8,16 +8,16 @@ import {
   TestTube,
 } from "lucide-react";
 
-import { Collection } from "../../types";
+import { PublishedRecords } from "../../types";
 
 type SidebarProps = {
-  collections: Collection[];
+  collections: PublishedRecords[];
   selectedRequestId: string | null;
   onSelectRequest: (requestId: string) => void;
   onAddCollection: () => void;
   onDeleteCollection: (collectionId: string) => void;
   onRenameCollection: (collectionId: string, newName: string) => void;
-  onGenerateTestCase: (collectionId: string) => void;
+  onExecuteAll: (collectionId: string) => void;
   onAddRequest: (collectionId: string) => void;
   onDeleteRequest: (requestId: string) => void;
   onRenameRequest: (requestId: string, newName: string) => void;
@@ -33,14 +33,14 @@ type EditableTextProps = {
 type CollectionMenuProps = {
   collectionId: string;
   onAddRequest: () => void;
-  onGenerateTestCase: () => void;
+  onExecuteAll: () => void;
   onExport: () => void;
   onDelete: () => void;
 };
 
 function CollectionMenu({
   onAddRequest,
-  onGenerateTestCase,
+  onExecuteAll,
   onExport,
   onDelete,
 }: CollectionMenuProps) {
@@ -81,7 +81,7 @@ function CollectionMenu({
           </button>
           <button
             onClick={() => {
-              onGenerateTestCase();
+              onExecuteAll();
               setIsOpen(false);
             }}
             className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 flex items-center gap-2"
@@ -174,7 +174,7 @@ export default function TestSidebar({
   onAddCollection,
   onDeleteCollection,
   onRenameCollection,
-  onGenerateTestCase,
+  onExecuteAll,
   onAddRequest,
   onDeleteRequest,
   onRenameRequest,
@@ -208,12 +208,12 @@ export default function TestSidebar({
                 onAddRequest={() => onAddRequest(collection.id)}
                 onExport={() => onExportCollection(collection.id)}
                 onDelete={() => onDeleteCollection(collection.id)}
-                onGenerateTestCase={() => onGenerateTestCase(collection.id)}
+                onExecuteAll={() => onExecuteAll(collection.id)}
               />
             </div>
 
             <div className="pl-6 space-y-1">
-              {collection.api_requests.map((request) => (
+              {collection.test_cases.map((request) => (
                 <div key={request.id} className="flex items-center group">
                   <button
                     onClick={() => onSelectRequest(request.id)}
@@ -227,7 +227,7 @@ export default function TestSidebar({
                       {request.method}
                     </span>{" "}
                     <EditableText
-                      value={request.name}
+                      value={request.test_case_name}
                       onSave={(newName) => onRenameRequest(request.id, newName)}
                     />
                   </button>

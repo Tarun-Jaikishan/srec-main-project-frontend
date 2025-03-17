@@ -9,7 +9,7 @@ import TestSidebar from "../components/test/TestSidebar";
 import TestRequestBuilder from "../components/test/TestRequestBuilder";
 import TestResponseViewer from "../components/test/TestResponseViewer";
 
-import { ApiRequest, ApiResponse, Collection } from "../types";
+import { TestCase, ApiResponse, PublishedRecords } from "../types";
 
 import { axV1 } from "../helpers/axios";
 
@@ -17,7 +17,7 @@ export default function HomePage() {
   const location = useLocation();
   const currentPath = location.pathname;
 
-  const [collections, setCollections] = useState<Collection[]>([]);
+  const [collections, setCollections] = useState<PublishedRecords[]>([]);
 
   const [selectedRequestId, setSelectedRequestId] = useState<string | null>(
     null
@@ -37,7 +37,7 @@ export default function HomePage() {
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      const response = await axV1.get("/groups", {
+      const response = await axV1.get("/published-records", {
         params: { page: 1, perPage: -1 },
       });
 
@@ -53,22 +53,22 @@ export default function HomePage() {
 
   const selectedRequest = selectedRequestId
     ? collections
-        .flatMap((c) => c.api_requests)
+        .flatMap((c) => c.test_cases)
         .find((r) => r.id === selectedRequestId)
     : null;
 
   const handleAddCollection = async () => {
     const uniqueId = uuidv4();
 
-    const newCollection: Collection = {
+    const newCollection: PublishedRecords = {
       id: uniqueId,
       name: "New Collection",
-      api_requests: [],
+      test_cases: [],
     };
 
     setIsLoading(true);
     try {
-      await axV1.post("/groups", {
+      await axV1.post("/published-records", {
         id: newCollection.id,
         name: newCollection.name,
       });
@@ -83,14 +83,14 @@ export default function HomePage() {
   const handleDeleteCollection = async (collectionId: string) => {
     setIsLoading(true);
     try {
-      await axV1.delete(`/groups/${collectionId}`);
+      await axV1.delete(`/published-records/${collectionId}`);
 
       setCollections(collections.filter((c) => c.id !== collectionId));
       if (
         selectedRequest?.id &&
         collections
           .find((c) => c.id === collectionId)
-          ?.api_requests.some((r) => r.id === selectedRequest.id)
+          ?.test_cases.some((r) => r.id === selectedRequest.id)
       ) {
         setSelectedRequestId(null);
       }
@@ -107,7 +107,7 @@ export default function HomePage() {
   ) => {
     setIsLoading(true);
     try {
-      await axV1.put("/groups", { id: collectionId, name: newName });
+      await axV1.put("/published-records", { id: collectionId, name: newName });
 
       setCollections(
         collections.map((collection) =>
@@ -123,7 +123,7 @@ export default function HomePage() {
     }
   };
 
-  const handleGenerateTestCase = async (collectionId: string) => {
+  const handleExecuteAll = async (collectionId: string) => {
     setIsLoading(true);
     try {
       console.log("hi");
@@ -140,9 +140,9 @@ export default function HomePage() {
     try {
       const uniqueId = uuidv4();
 
-      const newRequest: ApiRequest = {
+      const newRequest: TestCase = {
         id: uniqueId,
-        name: "New Request",
+        test_case_name: "New Request",
         method: "GET",
         url: "",
         headers: [],
@@ -150,10 +150,10 @@ export default function HomePage() {
         body: "",
       };
 
-      await axV1.post("/api-requests", {
+      await axV1.post("/ai-test-cases", {
         id: newRequest.id,
-        group_id: collectionId,
-        name: newRequest.name,
+        publish_id: collectionId,
+        test_case_name: newRequest.test_case_name,
         method: newRequest.method,
       });
 
@@ -162,7 +162,7 @@ export default function HomePage() {
           collection.id === collectionId
             ? {
                 ...collection,
-                api_requests: [...collection.api_requests, newRequest],
+                test_cases: [...collection.test_cases, newRequest],
               }
             : collection
         )
@@ -179,14 +179,12 @@ export default function HomePage() {
   const handleDeleteRequest = async (requestId: string) => {
     setIsLoading(true);
     try {
-      await axV1.delete(`/api-requests/${requestId}`);
+      await axV1.delete(`/ai-test-cases/${requestId}`);
 
       setCollections(
         collections.map((collection) => ({
           ...collection,
-          api_requests: collection.api_requests.filter(
-            (r) => r.id !== requestId
-          ),
+          test_cases: collection.test_cases.filter((r) => r.id !== requestId),
         }))
       );
       if (selectedRequestId === requestId) setSelectedRequestId(null);
@@ -200,16 +198,18 @@ export default function HomePage() {
   const handleRenameRequest = async (requestId: string, newName: string) => {
     setIsLoading(true);
     try {
-      await axV1.put("/api-requests", {
+      await axV1.put("/ai-test-cases", {
         id: requestId,
-        name: newName,
+        test_case_name: newName,
       });
 
       setCollections(
         collections.map((collection) => ({
           ...collection,
-          api_requests: collection.api_requests.map((request) =>
-            request.id === requestId ? { ...request, name: newName } : request
+          test_cases: collection.test_cases.map((request) =>
+            request.id === requestId
+              ? { ...request, test_case_name: newName }
+              : request
           ),
         }))
       );
@@ -220,13 +220,13 @@ export default function HomePage() {
     }
   };
 
-  const handleUpdateRequest = (updatedRequest: ApiRequest) => {
+  const handleUpdateRequest = (updatedRequest: TestCase) => {
     console.log(updatedRequest);
 
     setCollections(
       collections.map((collection) => ({
         ...collection,
-        api_requests: collection.api_requests.map((request) =>
+        test_cases: collection.test_cases.map((request) =>
           request.id === updatedRequest.id ? updatedRequest : request
         ),
       }))
@@ -253,14 +253,16 @@ export default function HomePage() {
         }
       }
 
-      await axV1.put("/api-requests", {
+      await axV1.put("/ai-test-cases", {
         id: selectedRequest.id,
-        name: selectedRequest.name,
+        test_case_name: selectedRequest.test_case_name,
         method: selectedRequest.method,
+        description: selectedRequest.description,
         url: selectedRequest.url,
         body: processedBody,
         params: selectedRequest.params,
         headers: selectedRequest.headers,
+        expected_status: selectedRequest.expected_status,
       });
 
       toast.success("Save Successful");
@@ -277,7 +279,7 @@ export default function HomePage() {
 
     const exportData = {
       name: collection.name,
-      api_requests: collection.api_requests,
+      test_cases: collection.test_cases,
     };
 
     const dataStr = JSON.stringify(exportData, null, 2);
@@ -303,10 +305,10 @@ export default function HomePage() {
       reader.onload = (e) => {
         try {
           const importedData = JSON.parse(e.target?.result as string);
-          const newCollection: Collection = {
+          const newCollection: PublishedRecords = {
             id: Date.now().toString(),
             name: importedData.name || "Imported Collection",
-            api_requests: importedData.api_requests.map((req: ApiRequest) => ({
+            test_cases: importedData.test_cases.map((req: TestCase) => ({
               ...req,
               id:
                 Date.now().toString() + Math.random().toString(36).substr(2, 9),
@@ -508,7 +510,7 @@ export default function HomePage() {
             onAddCollection={handleAddCollection}
             onDeleteCollection={handleDeleteCollection}
             onRenameCollection={handleRenameCollection}
-            onGenerateTestCase={handleGenerateTestCase}
+            onExecuteAll={handleExecuteAll}
             onAddRequest={handleAddRequest}
             onDeleteRequest={handleDeleteRequest}
             onRenameRequest={handleRenameRequest}

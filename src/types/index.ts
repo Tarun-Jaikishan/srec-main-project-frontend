@@ -40,3 +40,30 @@ export type ApiResponse = {
   };
   time: number; // Response time in milliseconds
 };
+
+// AI Test Case Types
+
+export type TestCase = {
+  id: string;
+  test_case_name: string;
+  method: HttpMethod;
+  url: string;
+  description?: string;
+  headers: RequestHeader[];
+  params: Param[];
+  body: any;
+  expected_status?: boolean;
+  result_status?: boolean;
+  result_body?: any;
+  result_headers?: {
+    key: string;
+    value: string;
+  }[];
+  time_taken?: string;
+};
+
+export type PublishedRecords = {
+  id: string;
+  name: string;
+  test_cases: TestCase[];
+};
