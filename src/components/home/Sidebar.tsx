@@ -17,7 +17,7 @@ type SidebarProps = {
   onAddCollection: () => void;
   onDeleteCollection: (collectionId: string) => void;
   onRenameCollection: (collectionId: string, newName: string) => void;
-  onGenerateTestCase: (collectionId: string) => void;
+  onGenerateTestCase: (collectionId: string, collectionName: string) => void;
   onAddRequest: (collectionId: string) => void;
   onDeleteRequest: (requestId: string) => void;
   onRenameRequest: (requestId: string, newName: string) => void;
@@ -208,7 +208,9 @@ export default function Sidebar({
                 onAddRequest={() => onAddRequest(collection.id)}
                 onExport={() => onExportCollection(collection.id)}
                 onDelete={() => onDeleteCollection(collection.id)}
-                onGenerateTestCase={() => onGenerateTestCase(collection.id)}
+                onGenerateTestCase={() =>
+                  onGenerateTestCase(collection.id, collection.name)
+                }
               />
             </div>
 

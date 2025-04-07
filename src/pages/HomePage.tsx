@@ -123,11 +123,18 @@ export default function HomePage() {
     }
   };
 
-  const handleGenerateTestCase = async (collectionId: string) => {
+  const handleGenerateTestCase = async (
+    collectionId: string,
+    collectionName: string
+  ) => {
     setIsLoading(true);
     try {
-      console.log("hi");
-      console.log(collectionId);
+      await axV1.post("/publish/generate-test-cases", {
+        groupId: collectionId,
+        name: collectionName,
+      });
+
+      toast.success("Testcase generation started");
     } catch (err) {
       console.error(err);
     } finally {
