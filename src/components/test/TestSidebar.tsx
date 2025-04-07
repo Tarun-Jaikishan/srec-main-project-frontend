@@ -160,10 +160,7 @@ function EditableText({ value, onSave, className = "" }: EditableTextProps) {
   }
 
   return (
-    <span
-      onDoubleClick={handleDoubleClick}
-      className={`${className} cursor-text`}
-    >
+    <span onDoubleClick={handleDoubleClick} className={`${className}`}>
       {value}
     </span>
   );
@@ -217,8 +214,8 @@ export default function TestSidebar({
             <div className="space-y-1">
               {collection.test_cases
                 .sort((a, b) => {
-                  const dateA = new Date(a.created_at);
-                  const dateB = new Date(b.created_at);
+                  const dateA = new Date((a as any).created_at);
+                  const dateB = new Date((b as any).created_at);
                   return dateA.getTime() - dateB.getTime(); // Compare timestamps instead of Date objects
                 }) // Sort by created_at (oldest first)
                 .map((request) => (

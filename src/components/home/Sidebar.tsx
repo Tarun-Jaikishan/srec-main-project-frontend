@@ -158,10 +158,7 @@ function EditableText({ value, onSave, className = "" }: EditableTextProps) {
   }
 
   return (
-    <span
-      onDoubleClick={handleDoubleClick}
-      className={`${className} cursor-text`}
-    >
+    <span onDoubleClick={handleDoubleClick} className={`${className}`}>
       {value}
     </span>
   );
