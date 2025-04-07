@@ -60,6 +60,7 @@ export type TestCase = {
     value: string;
   }[];
   time_taken?: string;
+  created_at: Date;
 };
 
 export type PublishedRecords = {

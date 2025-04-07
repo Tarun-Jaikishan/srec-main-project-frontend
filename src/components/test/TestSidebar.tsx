@@ -87,7 +87,7 @@ function CollectionMenu({
             className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 flex items-center gap-2"
           >
             <Zap size={16} />
-            Execute All
+            Test All
           </button>
           {/* <button
             onClick={() => {
@@ -213,33 +213,41 @@ export default function TestSidebar({
             </div>
 
             <div className="pl-6 space-y-1">
-              {collection.test_cases.map((request) => (
-                <div key={request.id} className="flex items-center group">
-                  <button
-                    onClick={() => onSelectRequest(request.id)}
-                    className={`flex-1 text-left px-2 py-1 rounded text-sm ${
-                      selectedRequestId === request.id
-                        ? "bg-blue-100 text-blue-700"
-                        : "hover:bg-gray-100"
-                    }`}
-                  >
-                    <span className="text-xs font-medium text-gray-500">
-                      {request.method}
-                    </span>{" "}
-                    <EditableText
-                      value={request.test_case_name}
-                      onSave={(newName) => onRenameRequest(request.id, newName)}
-                    />
-                  </button>
-                  <button
-                    onClick={() => onDeleteRequest(request.id)}
-                    className="opacity-0 group-hover:opacity-100 p-1 hover:bg-gray-200 rounded text-red-600"
-                    title="Delete Test Case"
-                  >
-                    <Trash2 size={14} />
-                  </button>
-                </div>
-              ))}
+              {collection.test_cases
+                .sort((a, b) => {
+                  const dateA = new Date(a.created_at);
+                  const dateB = new Date(b.created_at);
+                  return dateA.getTime() - dateB.getTime(); // Compare timestamps instead of Date objects
+                }) // Sort by created_at (oldest first)
+                .map((request) => (
+                  <div key={request.id} className="flex items-center group">
+                    <button
+                      onClick={() => onSelectRequest(request.id)}
+                      className={`flex-1 text-left px-2 py-1 rounded text-sm ${
+                        selectedRequestId === request.id
+                          ? "bg-blue-100 text-blue-700"
+                          : "hover:bg-gray-100"
+                      }`}
+                    >
+                      <span className="text-xs font-medium text-gray-500">
+                        {request.method}
+                      </span>{" "}
+                      <EditableText
+                        value={request.test_case_name}
+                        onSave={(newName) =>
+                          onRenameRequest(request.id, newName)
+                        }
+                      />
+                    </button>
+                    <button
+                      onClick={() => onDeleteRequest(request.id)}
+                      className="opacity-0 group-hover:opacity-100 p-1 hover:bg-gray-200 rounded text-red-600"
+                      title="Delete Test Case"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                ))}
             </div>
           </div>
         ))}
