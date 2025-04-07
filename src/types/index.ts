@@ -20,6 +20,7 @@ export type ApiRequest = {
   headers: RequestHeader[];
   params: Param[];
   body: any;
+  created_at?: Date;
 };
 
 export type Collection = {

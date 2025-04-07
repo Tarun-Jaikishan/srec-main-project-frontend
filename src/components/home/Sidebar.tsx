@@ -212,33 +212,41 @@ export default function Sidebar({
             </div>
 
             <div className="space-y-1">
-              {collection.api_requests.map((request) => (
-                <div key={request.id} className="flex items-center group">
-                  <button
-                    onClick={() => onSelectRequest(request.id)}
-                    className={`flex-1 text-left px-2 py-1 rounded text-sm ${
-                      selectedRequestId === request.id
-                        ? "bg-blue-100 text-blue-700"
-                        : "hover:bg-gray-100"
-                    }`}
-                  >
-                    <span className="text-xs font-medium text-gray-500">
-                      {request.method}
-                    </span>{" "}
-                    <EditableText
-                      value={request.name}
-                      onSave={(newName) => onRenameRequest(request.id, newName)}
-                    />
-                  </button>
-                  <button
-                    onClick={() => onDeleteRequest(request.id)}
-                    className="opacity-0 group-hover:opacity-100 p-1 hover:bg-gray-200 rounded text-red-600"
-                    title="Delete Request"
-                  >
-                    <Trash2 size={14} />
-                  </button>
-                </div>
-              ))}
+              {collection.api_requests
+                .sort((a, b) => {
+                  const dateA = new Date((a as any).created_at);
+                  const dateB = new Date((b as any).created_at);
+                  return dateA.getTime() - dateB.getTime(); // Compare timestamps instead of Date objects
+                }) // Sort by created_at (oldest first)
+                .map((request) => (
+                  <div key={request.id} className="flex items-center group">
+                    <button
+                      onClick={() => onSelectRequest(request.id)}
+                      className={`flex-1 text-left px-2 py-1 rounded text-sm ${
+                        selectedRequestId === request.id
+                          ? "bg-blue-100 text-blue-700"
+                          : "hover:bg-gray-100"
+                      }`}
+                    >
+                      <span className="text-xs font-medium text-gray-500">
+                        {request.method}
+                      </span>{" "}
+                      <EditableText
+                        value={request.name}
+                        onSave={(newName) =>
+                          onRenameRequest(request.id, newName)
+                        }
+                      />
+                    </button>
+                    <button
+                      onClick={() => onDeleteRequest(request.id)}
+                      className="opacity-0 group-hover:opacity-100 p-1 hover:bg-gray-200 rounded text-red-600"
+                      title="Delete Request"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                ))}
             </div>
           </div>
         ))}
