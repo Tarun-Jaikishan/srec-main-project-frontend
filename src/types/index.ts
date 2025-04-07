@@ -67,4 +67,7 @@ export type PublishedRecords = {
   id: string;
   name: string;
   test_cases: TestCase[];
+  count?: number;
+  progress_count?: number;
+  mode?: string;
 };

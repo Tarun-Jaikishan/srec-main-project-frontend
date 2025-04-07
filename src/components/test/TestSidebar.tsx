@@ -38,6 +38,7 @@ type CollectionMenuProps = {
   onExecuteAll: () => void;
   onExport: () => void;
   onDelete: () => void;
+  loading?: boolean;
 };
 
 function CollectionMenu({
@@ -45,6 +46,7 @@ function CollectionMenu({
   onExecuteAll,
   onExport,
   onDelete,
+  loading = false,
 }: CollectionMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -62,14 +64,21 @@ function CollectionMenu({
 
   return (
     <div className="relative" ref={menuRef}>
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="p-1 hover:bg-gray-200 rounded"
-      >
-        <MoreVertical size={16} />
-      </button>
+      {!loading ? (
+        <div
+          title="Generating testcases..."
+          className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"
+        ></div>
+      ) : (
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="p-1 hover:bg-gray-200 rounded"
+        >
+          <MoreVertical size={16} />
+        </button>
+      )}
 
-      {isOpen && (
+      {isOpen && loading && (
         <div className="absolute right-0 mt-1 w-48 bg-white rounded-md shadow-lg z-10 py-1 border">
           <button
             onClick={() => {
@@ -208,6 +217,10 @@ export default function TestSidebar({
                 onExport={() => onExportCollection(collection.id)}
                 onDelete={() => onDeleteCollection(collection.id)}
                 onExecuteAll={() => onExecuteAll(collection.id)}
+                loading={
+                  collection.count === collection.progress_count &&
+                  collection.mode === "AUTO"
+                }
               />
             </div>
 
