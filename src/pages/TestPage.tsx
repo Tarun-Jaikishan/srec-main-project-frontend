@@ -64,6 +64,7 @@ export default function HomePage() {
       id: uniqueId,
       name: "New Collection",
       test_cases: [],
+      mode: "MANUAL",
     };
 
     setIsLoading(true);
@@ -72,6 +73,8 @@ export default function HomePage() {
         id: newCollection.id,
         name: newCollection.name,
       });
+
+      console.log(newCollection);
       setCollections([...collections, newCollection]);
     } catch (err) {
       console.error(err);
