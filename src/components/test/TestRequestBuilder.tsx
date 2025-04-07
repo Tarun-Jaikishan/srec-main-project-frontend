@@ -189,23 +189,29 @@ export default function TestRequestBuilder({
           >
             Description
           </button>
-          <div className="px-4 py-2">
-            {/* Pass */}
-            <div className="flex items-center">
-              <CheckCircle className="text-green-500 mr-2" size={20} />
-              <span className="text-green-500 font-medium">Passed</span>
-            </div>
-            {/* Fail */}
-            {/* <div className="flex items-center mt-2">
-              <XCircle className="text-red-500 mr-2" size={20} />
-              <span className="text-red-500 font-medium">Failed</span>
-            </div> */}
-            {/* Loading */}
-            {/* <div className="flex gap-2 items-center">
+          {request.result_status != null && (
+            <div className="px-4 py-2">
+              {request.expected_status === request.result_status ? (
+                <div className="flex items-center">
+                  {/* Pass */}
+                  <CheckCircle className="text-green-500 mr-2" size={20} />
+                  <span className="text-green-500 font-medium">Passed</span>
+                </div>
+              ) : (
+                <div className="flex items-center">
+                  {/* Fail */}
+                  <XCircle className="text-red-500 mr-2" size={20} />
+                  <span className="text-red-500 font-medium">Failed</span>
+                </div>
+              )}
+
+              {/* Loading */}
+              {/* <div className="flex gap-2 items-center">
               <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
               <span className="text-blue-500 font-medium">Loading...</span>
             </div> */}
-          </div>
+            </div>
+          )}
         </div>
 
         <div className="p-4">

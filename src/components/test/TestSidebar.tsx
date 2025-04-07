@@ -6,6 +6,8 @@ import {
   MoreVertical,
   Zap,
   TestTube,
+  CheckCircle,
+  XCircle,
 } from "lucide-react";
 
 import { PublishedRecords } from "../../types";
@@ -212,7 +214,7 @@ export default function TestSidebar({
               />
             </div>
 
-            <div className="pl-6 space-y-1">
+            <div className="space-y-1">
               {collection.test_cases
                 .sort((a, b) => {
                   const dateA = new Date(a.created_at);
@@ -220,32 +222,43 @@ export default function TestSidebar({
                   return dateA.getTime() - dateB.getTime(); // Compare timestamps instead of Date objects
                 }) // Sort by created_at (oldest first)
                 .map((request) => (
-                  <div key={request.id} className="flex items-center group">
-                    <button
-                      onClick={() => onSelectRequest(request.id)}
-                      className={`flex-1 text-left px-2 py-1 rounded text-sm ${
-                        selectedRequestId === request.id
-                          ? "bg-blue-100 text-blue-700"
-                          : "hover:bg-gray-100"
-                      }`}
-                    >
-                      <span className="text-xs font-medium text-gray-500">
-                        {request.method}
-                      </span>{" "}
-                      <EditableText
-                        value={request.test_case_name}
-                        onSave={(newName) =>
-                          onRenameRequest(request.id, newName)
-                        }
-                      />
-                    </button>
-                    <button
-                      onClick={() => onDeleteRequest(request.id)}
-                      className="opacity-0 group-hover:opacity-100 p-1 hover:bg-gray-200 rounded text-red-600"
-                      title="Delete Test Case"
-                    >
-                      <Trash2 size={14} />
-                    </button>
+                  <div key={request.id} className="flex items-start gap-1">
+                    {request.result_status != null && (
+                      <div>
+                        {request.expected_status === request.result_status ? (
+                          <CheckCircle className="text-green-500 min-w-3 max-w-3" />
+                        ) : (
+                          <XCircle className="text-red-500 min-w-3 max-w-3" />
+                        )}
+                      </div>
+                    )}
+                    <div className="flex items-center group w-full">
+                      <button
+                        onClick={() => onSelectRequest(request.id)}
+                        className={`flex-1 text-left px-2 py-1 rounded text-sm ${
+                          selectedRequestId === request.id
+                            ? "bg-blue-100 text-blue-700"
+                            : "hover:bg-gray-100"
+                        }`}
+                      >
+                        <span className="text-xs font-medium text-gray-500">
+                          {request.method}
+                        </span>{" "}
+                        <EditableText
+                          value={request.test_case_name}
+                          onSave={(newName) =>
+                            onRenameRequest(request.id, newName)
+                          }
+                        />
+                      </button>
+                      <button
+                        onClick={() => onDeleteRequest(request.id)}
+                        className="opacity-0 group-hover:opacity-100 p-1 hover:bg-gray-200 rounded text-red-600"
+                        title="Delete Test Case"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
                   </div>
                 ))}
             </div>
