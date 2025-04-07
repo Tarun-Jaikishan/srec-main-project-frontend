@@ -263,9 +263,10 @@ export default function HomePage() {
         headers: selectedRequest.headers,
       });
 
-      toast.success("Save Successful");
+      toast.success("Save successful");
     } catch (err) {
       console.error(err);
+      toast.error("Please fill all details to save");
     } finally {
       setIsLoading(false);
     }
