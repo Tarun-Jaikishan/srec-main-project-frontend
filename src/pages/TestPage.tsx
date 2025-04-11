@@ -51,6 +51,36 @@ export default function HomePage() {
     }
   };
 
+  const getStoredResponse = (testCase: TestCase): ApiResponse | null => {
+    if (!testCase.result_body) return null;
+
+    return {
+      status: testCase.result_status ? 200 : 400, // Assuming a simple mapping
+      statusText: testCase.result_status ? "OK" : "Error",
+      headers: testCase.result_headers
+        ? testCase.result_headers.reduce(
+            (acc, header) => ({ ...acc, [header.key]: header.value }),
+            {}
+          )
+        : {},
+      data: testCase.result_body,
+      contentType: "application/json", // Assuming JSON by default
+      size: {
+        headers: testCase.result_headers
+          ? JSON.stringify(testCase.result_headers).length
+          : 0,
+        body: JSON.stringify(testCase.result_body).length,
+      },
+      time: testCase.time_taken ? parseFloat(testCase.time_taken) : 0,
+    };
+  };
+
+  const handleSelectRequest = (requestId: string | null) => {
+    // Clear current response when switching requests
+    setResponse(null);
+    setSelectedRequestId(requestId);
+  };
+
   const selectedRequest = selectedRequestId
     ? collections
         .flatMap((c) => c.test_cases)
@@ -509,7 +539,7 @@ export default function HomePage() {
           <TestSidebar
             collections={collections}
             selectedRequestId={selectedRequestId}
-            onSelectRequest={setSelectedRequestId}
+            onSelectRequest={handleSelectRequest}
             onAddCollection={handleAddCollection}
             onDeleteCollection={handleDeleteCollection}
             onRenameCollection={handleRenameCollection}
@@ -538,7 +568,14 @@ export default function HomePage() {
                 onMouseDown={() => startDragging("response")}
               />
               <div style={{ height: `${responseHeight}%` }}>
-                <TestResponseViewer response={response} />
+                <TestResponseViewer
+                  response={
+                    response ||
+                    (selectedRequest
+                      ? getStoredResponse(selectedRequest)
+                      : null)
+                  }
+                />
               </div>
             </>
           ) : (
