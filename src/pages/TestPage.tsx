@@ -13,7 +13,7 @@ import { TestCase, ApiResponse, PublishedRecords } from "../types";
 
 import { axV1 } from "../helpers/axios";
 
-export default function HomePage() {
+export default function TestPage() {
   const location = useLocation();
   const currentPath = location.pathname;
 
@@ -159,10 +159,114 @@ export default function HomePage() {
   const handleExecuteAll = async (collectionId: string) => {
     setIsLoading(true);
     try {
-      console.log("hi");
-      console.log(collectionId);
+      const collection = collections.find((c) => c.id === collectionId);
+      if (!collection) return;
+
+      // Execute all test cases in sequence
+      for (const testCase of collection.test_cases) {
+        setSelectedRequestId(testCase.id);
+
+        try {
+          const headers: Record<string, string> = {
+            "Content-Type": "application/json",
+          };
+
+          testCase.headers
+            .filter((h) => h.enabled && h.key.trim())
+            .forEach((h) => {
+              headers[h.key.trim()] = h.value;
+            });
+
+          const params: Record<string, string> = {};
+          testCase.params
+            .filter((p) => p.enabled && p.key.trim())
+            .forEach((p) => {
+              params[p.key.trim()] = p.value;
+            });
+
+          const startTime = performance.now();
+          const response = await axios({
+            method: testCase.method,
+            url: testCase.url,
+            headers,
+            params,
+            data:
+              testCase.method !== "GET" && testCase.body
+                ? testCase.body
+                : undefined,
+          });
+
+          const endTime = performance.now();
+          const responseTime = endTime - startTime;
+
+          // Determine test result based on status code
+          const testPassed =
+            testCase.expected_status ===
+            (response.status >= 200 && response.status < 300);
+
+          // Update the test case with the test result
+          const updatedTestCase: TestCase = {
+            ...testCase,
+            result_status: testPassed,
+            result_headers: Object.entries(response.headers).map(
+              ([key, value]) => ({
+                key,
+                value: String(value),
+              })
+            ),
+            result_body: response.data,
+            time_taken: responseTime.toString(),
+          };
+
+          console.log("updatedTestCase", updatedTestCase);
+
+          // Update the collection with the test result
+          setCollections((prevCollections) =>
+            prevCollections.map((collection) =>
+              collection.id === collectionId
+                ? {
+                    ...collection,
+                    test_cases: collection.test_cases.map((testCase) =>
+                      testCase.id === updatedTestCase.id
+                        ? updatedTestCase
+                        : testCase
+                    ),
+                  }
+                : collection
+            )
+          );
+        } catch (error) {
+          console.error(`Test failed for test case ${testCase.id}:`, error);
+
+          // Update the test case with error result
+          const updatedTestCase: TestCase = {
+            ...testCase,
+            result_status: testCase.expected_status === false,
+            result_headers: [],
+            result_body: { error: "Test failed" },
+            time_taken: "0",
+          };
+
+          setCollections((prevCollections) =>
+            prevCollections.map((collection) =>
+              collection.id === collectionId
+                ? {
+                    ...collection,
+                    test_cases: collection.test_cases.map((testCase) =>
+                      testCase.id === updatedTestCase.id
+                        ? updatedTestCase
+                        : testCase
+                    ),
+                  }
+                : collection
+            )
+          );
+        }
+      }
+      toast.success("All tests completed!");
     } catch (err) {
       console.error(err);
+      toast.error("Error executing tests");
     } finally {
       setIsLoading(false);
     }
@@ -404,6 +508,30 @@ export default function HomePage() {
       const headerSize = JSON.stringify(responseHeaders).length;
       const bodySize = JSON.stringify(responseData).length;
 
+      // Update the test case with the result
+      const updatedRequest: TestCase = {
+        ...selectedRequest,
+        // result_status: response.status >= 200 && response.status < 300,
+        result_headers: Object.entries(response.headers).map(
+          ([key, value]) => ({
+            key,
+            value: String(value),
+          })
+        ),
+        result_body: response.data,
+        time_taken: responseTime.toString(),
+      };
+
+      // Update the collections state
+      setCollections(
+        collections.map((collection) => ({
+          ...collection,
+          test_cases: collection.test_cases.map((request) =>
+            request.id === selectedRequest.id ? updatedRequest : request
+          ),
+        }))
+      );
+
       setResponse({
         status: response.status,
         statusText: response.statusText,
@@ -418,6 +546,25 @@ export default function HomePage() {
       });
     } catch (error) {
       console.error("Request failed:", error);
+
+      // Update the test case with error result
+      const updatedRequest: TestCase = {
+        ...selectedRequest,
+        // result_status: false,
+        result_headers: [],
+        result_body: { error: "Request failed" },
+        time_taken: "0",
+      };
+
+      setCollections(
+        collections.map((collection) => ({
+          ...collection,
+          test_cases: collection.test_cases.map((request) =>
+            request.id === selectedRequest.id ? updatedRequest : request
+          ),
+        }))
+      );
+
       let errorResponse = {
         status: 0,
         statusText: "Request Failed",
@@ -445,6 +592,104 @@ export default function HomePage() {
       }
 
       setResponse(errorResponse);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleTestRequest = async () => {
+    if (!selectedRequest) return;
+    setIsLoading(true);
+
+    try {
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+
+      selectedRequest.headers
+        .filter((h) => h.enabled && h.key.trim())
+        .forEach((h) => {
+          headers[h.key.trim()] = h.value;
+        });
+
+      const params: Record<string, string> = {};
+      selectedRequest.params
+        .filter((p) => p.enabled && p.key.trim())
+        .forEach((p) => {
+          params[p.key.trim()] = p.value;
+        });
+
+      console.log(selectedRequest);
+
+      const startTime = performance.now();
+      const response = await axios({
+        method: selectedRequest.method,
+        url: selectedRequest.url,
+        headers,
+        params,
+        data:
+          selectedRequest.method !== "GET" && selectedRequest.body
+            ? selectedRequest.body
+            : undefined,
+      });
+
+      const endTime = performance.now();
+      const responseTime = endTime - startTime;
+
+      // Determine if the test passed (status between 200-299)
+      const testPassed =
+        selectedRequest.expected_status ===
+        (response.status >= 200 && response.status < 300);
+
+      // Update the test case with the test result
+      const updatedRequest: TestCase = {
+        ...selectedRequest,
+        result_status: testPassed,
+        result_headers: Object.entries(response.headers).map(
+          ([key, value]) => ({
+            key,
+            value: String(value),
+          })
+        ),
+        result_body: response.data,
+        time_taken: responseTime.toString(),
+      };
+
+      // Update the collections state
+      setCollections(
+        collections.map((collection) => ({
+          ...collection,
+          test_cases: collection.test_cases.map((request) =>
+            request.id === selectedRequest.id ? updatedRequest : request
+          ),
+        }))
+      );
+
+      // Show toast notification with test result
+      if (testPassed) toast.success("Test passed!");
+      else toast.error("Test failed!");
+    } catch (error) {
+      console.error("Test failed:", error);
+
+      // Update the test case with error result
+      const updatedRequest: TestCase = {
+        ...selectedRequest,
+        result_status: selectedRequest.expected_status === false,
+        result_headers: [],
+        result_body: { error: "Test failed" },
+        time_taken: "0",
+      };
+
+      setCollections(
+        collections.map((collection) => ({
+          ...collection,
+          test_cases: collection.test_cases.map((request) =>
+            request.id === selectedRequest.id ? updatedRequest : request
+          ),
+        }))
+      );
+
+      toast.error("Test failed!");
     } finally {
       setIsLoading(false);
     }
@@ -560,6 +805,7 @@ export default function HomePage() {
                   onUpdateRequest={handleUpdateRequest}
                   onSendRequest={handleSendRequest}
                   onSaveRequest={handleSaveRequest}
+                  onTestRequest={handleTestRequest}
                   isLoading={isLoading}
                 />
               </div>

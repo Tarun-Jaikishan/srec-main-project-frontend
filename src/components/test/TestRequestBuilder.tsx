@@ -18,6 +18,7 @@ type RequestBuilderProps = {
   onUpdateRequest: (request: TestCase) => void;
   onSendRequest: () => void;
   onSaveRequest: () => void;
+  onTestRequest: () => void;
   isLoading: boolean;
 };
 
@@ -28,6 +29,7 @@ export default function TestRequestBuilder({
   onUpdateRequest,
   onSendRequest,
   onSaveRequest,
+  onTestRequest,
   isLoading,
 }: RequestBuilderProps) {
   const [activeTab, setActiveTab] = useState<
@@ -139,7 +141,7 @@ export default function TestRequestBuilder({
         </select>
 
         <button
-          onClick={onSendRequest}
+          onClick={onTestRequest}
           disabled={isLoading}
           className={`px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed`}
         >
