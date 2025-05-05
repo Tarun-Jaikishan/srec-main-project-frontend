@@ -205,7 +205,7 @@ export default function TestPage() {
           // Update the test case with the actual result
           const updatedTestCase: TestCase = {
             ...testCase,
-            result_status: isSuccessResponse, // Store raw result
+            result_status: isSuccessResponse,
             result_headers: Object.entries(response.headers).map(
               ([key, value]) => ({
                 key,
@@ -229,8 +229,31 @@ export default function TestPage() {
                 : collection
             )
           );
-        } catch (error) {
+        } catch (error: any) {
           console.error(`Test failed for test case ${testCase.id}:`, error);
+
+          // Default error values
+          let errorStatus = 0;
+          let errorStatusText = "Request Failed";
+          let errorHeaders: { key: string; value: string }[] = [];
+          let errorBody = { error: "Test failed - Network Error" };
+          let errorTime = "0";
+
+          // If we have an axios error response, extract details
+          if (axios.isAxiosError(error) && error.response) {
+            errorStatus = error.response.status;
+            errorStatusText = error.response.statusText;
+            errorHeaders = Object.entries(error.response.headers).map(
+              ([key, value]) => ({
+                key,
+                value: String(value),
+              })
+            );
+            errorBody = error.response.data || {
+              error: "Test failed - Server Error",
+            };
+            errorTime = (error.config?.metadata?.duration || 0).toString();
+          }
 
           // For errors, the actual result is always false (failed)
           const isSuccessResponse = false;
@@ -238,10 +261,10 @@ export default function TestPage() {
           // Update the test case with error result
           const updatedTestCase: TestCase = {
             ...testCase,
-            result_status: isSuccessResponse, // Store raw failed result
-            result_headers: [],
-            result_body: { error: "Test failed" },
-            time_taken: "0",
+            result_status: isSuccessResponse,
+            result_headers: errorHeaders,
+            result_body: errorBody,
+            time_taken: errorTime,
           };
 
           setCollections((prevCollections) =>
@@ -266,7 +289,6 @@ export default function TestPage() {
       setIsLoading(false);
     }
   };
-
   const handleAddRequest = async (collectionId: string) => {
     setIsLoading(true);
     try {
@@ -634,10 +656,10 @@ export default function TestPage() {
       // Determine actual test result based on HTTP status
       const isSuccessResponse = response.status >= 200 && response.status < 300;
 
-      // Update the test case with the actual result (not comparing with expected_status yet)
+      // Update the test case with the actual result
       const updatedRequest: TestCase = {
         ...selectedRequest,
-        result_status: isSuccessResponse, // Store raw result
+        result_status: isSuccessResponse,
         result_headers: Object.entries(response.headers).map(
           ([key, value]) => ({
             key,
@@ -669,16 +691,39 @@ export default function TestPage() {
     } catch (error) {
       console.error("Test failed:", error);
 
+      // Default error values
+      let errorStatus = 0;
+      let errorStatusText = "Request Failed";
+      let errorHeaders: { key: string; value: string }[] = [];
+      let errorBody = { error: "Test failed - Network Error" };
+      let errorTime = "0";
+
+      // If we have an axios error response, extract details
+      if (axios.isAxiosError(error) && error.response) {
+        errorStatus = error.response.status;
+        errorStatusText = error.response.statusText;
+        errorHeaders = Object.entries(error.response.headers).map(
+          ([key, value]) => ({
+            key,
+            value: String(value),
+          })
+        );
+        errorBody = error.response.data || {
+          error: "Test failed - Server Error",
+        };
+        errorTime = (error.config?.metadata?.duration || 0).toString();
+      }
+
       // For errors, the actual result is always false (failed)
       const isSuccessResponse = false;
 
       // Update the test case with error result
       const updatedRequest: TestCase = {
         ...selectedRequest,
-        result_status: isSuccessResponse, // Store raw failed result
-        result_headers: [],
-        result_body: { error: "Test failed" },
-        time_taken: "0",
+        result_status: isSuccessResponse,
+        result_headers: errorHeaders,
+        result_body: errorBody,
+        time_taken: errorTime,
       };
 
       setCollections(
@@ -696,7 +741,10 @@ export default function TestPage() {
       if (testPassed) {
         toast.success("Test passed (expected failure)!");
       } else {
-        toast.error("Test failed!");
+        toast.error(
+          // `Test failed with status ${errorStatus}: ${errorStatusText}`
+          "Test failed"
+        );
       }
     } finally {
       setIsLoading(false);
