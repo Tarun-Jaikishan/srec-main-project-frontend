@@ -50,12 +50,11 @@ export default function TestPage() {
       setIsLoading(false);
     }
   };
-
   const getStoredResponse = (testCase: TestCase): ApiResponse | null => {
     if (!testCase.result_body) return null;
 
     return {
-      status: testCase.result_status ? 200 : 400, // Assuming a simple mapping
+      status: testCase.result_status ? 200 : 400,
       statusText: testCase.result_status ? "OK" : "Error",
       headers: testCase.result_headers
         ? testCase.result_headers.reduce(
@@ -64,7 +63,7 @@ export default function TestPage() {
           )
         : {},
       data: testCase.result_body,
-      contentType: "application/json", // Assuming JSON by default
+      contentType: "application/json",
       size: {
         headers: testCase.result_headers
           ? JSON.stringify(testCase.result_headers).length
@@ -199,15 +198,14 @@ export default function TestPage() {
           const endTime = performance.now();
           const responseTime = endTime - startTime;
 
-          // Determine test result based on status code
-          const testPassed =
-            testCase.expected_status ===
-            (response.status >= 200 && response.status < 300);
+          // Determine actual test result based on HTTP status
+          const isSuccessResponse =
+            response.status >= 200 && response.status < 300;
 
-          // Update the test case with the test result
+          // Update the test case with the actual result
           const updatedTestCase: TestCase = {
             ...testCase,
-            result_status: testPassed,
+            result_status: isSuccessResponse, // Store raw result
             result_headers: Object.entries(response.headers).map(
               ([key, value]) => ({
                 key,
@@ -218,18 +216,14 @@ export default function TestPage() {
             time_taken: responseTime.toString(),
           };
 
-          console.log("updatedTestCase", updatedTestCase);
-
           // Update the collection with the test result
           setCollections((prevCollections) =>
             prevCollections.map((collection) =>
               collection.id === collectionId
                 ? {
                     ...collection,
-                    test_cases: collection.test_cases.map((testCase) =>
-                      testCase.id === updatedTestCase.id
-                        ? updatedTestCase
-                        : testCase
+                    test_cases: collection.test_cases.map((tc) =>
+                      tc.id === updatedTestCase.id ? updatedTestCase : tc
                     ),
                   }
                 : collection
@@ -238,10 +232,13 @@ export default function TestPage() {
         } catch (error) {
           console.error(`Test failed for test case ${testCase.id}:`, error);
 
+          // For errors, the actual result is always false (failed)
+          const isSuccessResponse = false;
+
           // Update the test case with error result
           const updatedTestCase: TestCase = {
             ...testCase,
-            result_status: testCase.expected_status === false,
+            result_status: isSuccessResponse, // Store raw failed result
             result_headers: [],
             result_body: { error: "Test failed" },
             time_taken: "0",
@@ -252,10 +249,8 @@ export default function TestPage() {
               collection.id === collectionId
                 ? {
                     ...collection,
-                    test_cases: collection.test_cases.map((testCase) =>
-                      testCase.id === updatedTestCase.id
-                        ? updatedTestCase
-                        : testCase
+                    test_cases: collection.test_cases.map((tc) =>
+                      tc.id === updatedTestCase.id ? updatedTestCase : tc
                     ),
                   }
                 : collection
@@ -285,6 +280,7 @@ export default function TestPage() {
         headers: [],
         params: [],
         body: "",
+        expected_status: true, // Default to expecting success
       };
 
       await axV1.post("/ai-test-cases", {
@@ -292,6 +288,7 @@ export default function TestPage() {
         publish_id: collectionId,
         test_case_name: newRequest.test_case_name,
         method: newRequest.method,
+        expected_status: newRequest.expected_status,
       });
 
       setCollections(
@@ -619,8 +616,6 @@ export default function TestPage() {
           params[p.key.trim()] = p.value;
         });
 
-      console.log(selectedRequest);
-
       const startTime = performance.now();
       const response = await axios({
         method: selectedRequest.method,
@@ -636,15 +631,13 @@ export default function TestPage() {
       const endTime = performance.now();
       const responseTime = endTime - startTime;
 
-      // Determine if the test passed (status between 200-299)
-      const testPassed =
-        selectedRequest.expected_status ===
-        (response.status >= 200 && response.status < 300);
+      // Determine actual test result based on HTTP status
+      const isSuccessResponse = response.status >= 200 && response.status < 300;
 
-      // Update the test case with the test result
+      // Update the test case with the actual result (not comparing with expected_status yet)
       const updatedRequest: TestCase = {
         ...selectedRequest,
-        result_status: testPassed,
+        result_status: isSuccessResponse, // Store raw result
         result_headers: Object.entries(response.headers).map(
           ([key, value]) => ({
             key,
@@ -665,16 +658,24 @@ export default function TestPage() {
         }))
       );
 
-      // Show toast notification with test result
-      if (testPassed) toast.success("Test passed!");
-      else toast.error("Test failed!");
+      // Compare with expected_status for the toast message
+      const testPassed = selectedRequest.expected_status === isSuccessResponse;
+
+      if (testPassed) {
+        toast.success("Test passed!");
+      } else {
+        toast.error("Test failed!");
+      }
     } catch (error) {
       console.error("Test failed:", error);
+
+      // For errors, the actual result is always false (failed)
+      const isSuccessResponse = false;
 
       // Update the test case with error result
       const updatedRequest: TestCase = {
         ...selectedRequest,
-        result_status: selectedRequest.expected_status === false,
+        result_status: isSuccessResponse, // Store raw failed result
         result_headers: [],
         result_body: { error: "Test failed" },
         time_taken: "0",
@@ -689,7 +690,14 @@ export default function TestPage() {
         }))
       );
 
-      toast.error("Test failed!");
+      // Compare with expected_status for the toast message
+      const testPassed = selectedRequest.expected_status === isSuccessResponse;
+
+      if (testPassed) {
+        toast.success("Test passed (expected failure)!");
+      } else {
+        toast.error("Test failed!");
+      }
     } finally {
       setIsLoading(false);
     }
